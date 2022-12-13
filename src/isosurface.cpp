@@ -1527,9 +1527,11 @@ void Fluid::Render(){
 
 	glVertexPointer(3,GL_FLOAT,0,&surf->vert_coords[0]);
 #else
-		glUniform2iv(Global::shader->texflag, tex_count , tblendflags[0]);
-		glUniformMatrix3fv(Global::shader->texmat, tex_count, 0, tmatrix[0]);
-		glUniform1fv(Global::shader->tex_coords_set, tex_count , tcoords);
+		if (tex_count>0){
+			glUniform2iv(Global::shader->texflag, tex_count , tblendflags[0]);
+			glUniformMatrix3fv(Global::shader->texmat, tex_count, 0, tmatrix[0]);
+			glUniform1fv(Global::shader->tex_coords_set, tex_count , tcoords);
+		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, surf->vbo_id[0]);
 		glBufferData(GL_ARRAY_BUFFER,(surf->no_verts*3*sizeof(float)),&surf->vert_coords[0],GL_STREAM_DRAW);

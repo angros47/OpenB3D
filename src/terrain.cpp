@@ -635,9 +635,11 @@ void Terrain::UpdateTerrain(){
 	glVertexPointer(3,GL_FLOAT,8*sizeof(float),&vertices[0]);
 	glNormalPointer(GL_FLOAT,8*sizeof(float),&vertices[3]);
 #else
-		glUniform2iv(Global::shader->texflag, tex_count , tblendflags[0]);
-		glUniformMatrix3fv(Global::shader->texmat, tex_count, 0, tmatrix[0]);
-		glUniform1fv(Global::shader->tex_coords_set, tex_count , tcoords);
+		if (tex_count>0){
+			glUniform2iv(Global::shader->texflag, tex_count , tblendflags[0]);
+			glUniformMatrix3fv(Global::shader->texmat, tex_count, 0, tmatrix[0]);
+			glUniform1fv(Global::shader->tex_coords_set, tex_count , tcoords);
+		}
 
 		glBindBuffer(GL_ARRAY_BUFFER,vbo_id);
 		glBufferData(GL_ARRAY_BUFFER,(triangleindex*3*8*sizeof(float)),&vertices[0],GL_STREAM_DRAW);
