@@ -143,18 +143,18 @@ void Light::FreeEntity(){
 
 	Entity::FreeEntity();
 
-#ifndef GLES2
 	int erased=0;
 
 	for (int i=0; i<no_lights;i++){
+#ifndef GLES2
 		glDisable(gl_light[i]);
+#endif
 		if (!erased && light_list[i]==this){
 			light_list.erase(light_list.begin()+i);
 			erased=1;
 		}
 	}
 
-#endif
 	no_lights=no_lights-1;
 	
 	delete this;
