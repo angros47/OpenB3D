@@ -20,6 +20,7 @@
 #include "voxel.h"
 #include "global.h"
 #include "camera.h"
+#include "pick.h"
 
 void Add3DVertex(Surface* surf, float x, float y, float z,float u,float v,float w){
 	surf->no_verts++;
@@ -41,6 +42,180 @@ void Add3DVertex(Surface* surf, float x, float y, float z,float u,float v,float 
 	surf->vert_tex_coords1.push_back(u);
 	surf->vert_tex_coords1.push_back(v);
 	surf->vert_tex_coords1.push_back(w);
+
+}
+
+VoxelSprite* VoxelSprite::CopyEntity(Entity* parent_ent){
+
+	// new VoxelSprite
+	VoxelSprite* voxelSprite=new VoxelSprite();
+
+	// copy contents of child list before adding parent
+	list<Entity*>::iterator it;
+	for(it=child_list.begin();it!=child_list.end();it++){
+		Entity* ent=*it;
+		ent->CopyEntity(voxelSprite);
+	}
+
+	// lists
+
+	// add parent, add to list
+	voxelSprite->AddParent(parent_ent);
+	entity_list.push_back(voxelSprite);
+
+	if(collision_type!=0){
+		CollisionPair::ent_lists[collision_type].push_back(voxelSprite);
+	}
+
+	// add to pick entity list
+	if(pick_mode!=0){
+		Pick::ent_list.push_back(voxelSprite);
+	}
+
+	// update matrix
+	if(voxelSprite->parent){
+		voxelSprite->mat.Overwrite(voxelSprite->parent->mat);
+	}else{
+		voxelSprite->mat.LoadIdentity();
+	}
+
+	// copy entity info
+
+	voxelSprite->mat.Multiply(mat);
+	voxelSprite->rotmat = rotmat;
+
+	voxelSprite->px=px;
+	voxelSprite->py=py;
+	voxelSprite->pz=pz;
+	voxelSprite->sx=sx;
+	voxelSprite->sy=sy;
+	voxelSprite->sz=sz;
+	voxelSprite->rx=rx;
+	voxelSprite->ry=ry;
+	voxelSprite->rz=rz;
+	voxelSprite->qw=qw;
+	voxelSprite->qx=qx;
+	voxelSprite->qy=qy;
+	voxelSprite->qz=qz;
+
+	voxelSprite->name=name;
+	voxelSprite->class_name=class_name;
+	voxelSprite->order=order;
+	voxelSprite->hide=false;
+
+	voxelSprite->brush=brush;
+
+
+	voxelSprite->cull_radius=cull_radius;
+	voxelSprite->radius_x=radius_x;
+	voxelSprite->radius_y=radius_y;
+	voxelSprite->box_x=box_x;
+	voxelSprite->box_y=box_y;
+	voxelSprite->box_z=box_z;
+	voxelSprite->box_w=box_w;
+	voxelSprite->box_h=box_h;
+	voxelSprite->box_d=box_d;
+	voxelSprite->collision_type=collision_type;
+	voxelSprite->pick_mode=pick_mode;
+	voxelSprite->obscurer=obscurer;
+
+	// copy mesh info
+
+	voxelSprite->min_x=-1;
+	voxelSprite->max_x=1;
+	voxelSprite->min_y=-1;
+	voxelSprite->max_y=1;
+	voxelSprite->min_z=-1;
+	voxelSprite->max_z=1;
+
+	voxelSprite->no_surfs=no_surfs;
+
+#ifndef GLES2
+	// copy surf list
+	list<Surface*>::iterator it2;
+	for(it2=surf_list.begin();it2!=surf_list.end();it2++){
+
+		Surface* surf=*it2;
+
+		Surface* new_surf=new Surface;
+		voxelSprite->surf_list.push_back(new_surf);
+
+		new_surf->no_verts=surf->no_verts;
+		new_surf->no_tris=surf->no_tris;
+
+		// copy arrays
+		new_surf->vert_coords=surf->vert_coords;
+		new_surf->vert_norm=surf->vert_norm;
+		new_surf->vert_tex_coords0=surf->vert_tex_coords0;
+		new_surf->vert_tex_coords1=surf->vert_tex_coords1;
+		new_surf->vert_col=surf->vert_col;
+		new_surf->tris=surf->tris;
+
+		new_surf->vert_array_size=surf->vert_array_size;
+		new_surf->tri_array_size=surf->tri_array_size;
+		new_surf->vmin=surf->vmin;
+		new_surf->vmax=surf->vmax;
+
+		new_surf->vbo_enabled=surf->vbo_enabled;
+		new_surf->reset_vbo=-1; // (-1 = all)
+		if(new_surf->vbo_enabled==true){
+			new_surf->UpdateVBO();
+			glBindBuffer(GL_ARRAY_BUFFER,new_surf->vbo_id[2]);
+			glBufferData(GL_ARRAY_BUFFER,(new_surf->no_verts*3*sizeof(float)),&new_surf->vert_tex_coords1[0],GL_STATIC_DRAW);
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,new_surf->vbo_id[5]);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER,new_surf->tris.size()*sizeof(unsigned short),&new_surf->tris[0],GL_STATIC_DRAW);
+		}
+
+	}
+#else
+	Surface* new_surf=new Surface;
+	Surface* surf=*surf_list.begin();
+
+	voxelSprite->surf_list.push_back(new_surf);
+
+	new_surf->no_verts=surf->no_verts;
+	new_surf->no_tris=surf->no_tris;
+
+	// copy arrays
+	new_surf->vert_coords=surf->vert_coords;
+	new_surf->vert_norm=surf->vert_norm;
+	new_surf->vert_tex_coords0=surf->vert_tex_coords0;
+	new_surf->vert_tex_coords1=surf->vert_tex_coords1;
+	new_surf->vert_col=surf->vert_col;
+	new_surf->tris=surf->tris;
+
+	new_surf->vert_array_size=surf->vert_array_size;
+	new_surf->tri_array_size=surf->tri_array_size;
+	new_surf->vmin=surf->vmin;
+	new_surf->vmax=surf->vmax;
+
+	new_surf->vbo_enabled=surf->vbo_enabled;
+	new_surf->reset_vbo=-1; // (-1 = all)
+	new_surf->UpdateVBO();
+
+#endif
+
+	voxelSprite->no_mats=no_mats;
+	voxelSprite->material[0]=material[0];
+	voxelSprite->material[1]=material[1];
+	voxelSprite->material[2]=material[2];
+	voxelSprite->material[3]=material[3];
+	voxelSprite->material[4]=material[4];
+	voxelSprite->material[5]=material[5];
+	voxelSprite->material[6]=material[6];
+	voxelSprite->material[7]=material[7];
+
+#ifndef GLES2
+	for(int i=0;i<16*3;i++){
+		voxelSprite->LOD[i]=LOD[i];
+	}
+#endif
+	voxelSprite->c_col_tree=c_col_tree;
+
+	voxelSprite->reset_bounds=reset_bounds;
+
+	return voxelSprite;
 
 }
 
