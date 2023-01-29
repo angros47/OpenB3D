@@ -1,3 +1,8 @@
+V1.261
+Fixed
+-CopyEntity for voxel sprites
+-some issues with lights in Web mode
+
 V1.26
 Added
 -FreeShader
