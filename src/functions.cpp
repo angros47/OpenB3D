@@ -1853,9 +1853,7 @@ Shader* LoadShaderVGF(char* ShaderName, char* VshaderFileName, char* GshaderFile
 	Shader* s=Shader::CreateShaderMaterial(ShaderName);
 	//int Vert, Geom, Frag;
 	s->AddShader(VshaderFileName, GL_VERTEX_SHADER);
-#ifndef GLES2
 	s->AddShader(GshaderFileName, GL_GEOMETRY_SHADER);
-#endif
 	s->AddShader(FshaderFileName, GL_FRAGMENT_SHADER);
 	s->Link();
 	return s;
@@ -1865,9 +1863,7 @@ Shader* CreateShaderVGF(char* ShaderName, char* VshaderString, char* GshaderStri
 	Shader* s=Shader::CreateShaderMaterial(ShaderName);
 	//int Vert, Geom, Frag;
 	s->AddShaderFromString(VshaderString, GL_VERTEX_SHADER);
-#ifndef GLES2
 	s->AddShaderFromString(GshaderString, GL_GEOMETRY_SHADER);
-#endif
 	s->AddShaderFromString(FshaderString, GL_FRAGMENT_SHADER);
 	s->Link();
 	return s;
