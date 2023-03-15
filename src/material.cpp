@@ -1167,7 +1167,14 @@ void ProgramObject::Activate(){
 }
 
 void ProgramObject::DeActivate(){
+#ifndef GLES2
 	glUseProgram(default_program);
+#else
+	if (default_program!=0) 
+		{glUseProgram(default_program);}
+	else
+		{Global::shader=0;}
+#endif
 }
 
 void ProgramObject::RefreshTypeMap(){
