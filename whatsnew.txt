@@ -2,6 +2,7 @@ V1.261
 Fixed
 -CopyEntity for voxel sprites
 -some issues with lights in Web mode
+-in Web mode entities that used the default shader weren't rendered after entities using a custom shader. 
 
 V1.26
 Added
