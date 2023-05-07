@@ -191,7 +191,7 @@ Texture* Texture::LoadAnimTexture(string filename,int flags, int frame_width,int
 	buffer=stbi_load(filename.c_str(),&tex->width,&tex->height,0,4);
 
 	unsigned int name;
-	if (frame_count<=2){
+	if (frame_count<2){
 		glGenTextures (1,&name);
 		glBindTexture (GL_TEXTURE_2D,name);
 		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex->width, tex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);

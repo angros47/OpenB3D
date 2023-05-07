@@ -1613,7 +1613,6 @@ void Blob::FreeEntity(){
 
 
 Blob* Blob::CreateBlob(Fluid* fluid, float radius, Entity* parent_ent){
-	if(parent_ent==NULL) parent_ent=Global::root_ent;
 
 	Blob* blob=new Blob;
 	blob->class_name="Blob";
@@ -1643,7 +1642,6 @@ Blob* Blob::CreateBlob(Fluid* fluid, float radius, Entity* parent_ent){
 
 Blob* Blob::CopyEntity(Entity* parent_ent){
 
-	if(parent_ent==NULL) parent_ent=Global::root_ent;
 
 	// new blob
 	Blob* blob=new Blob;

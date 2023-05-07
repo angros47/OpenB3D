@@ -12,8 +12,6 @@
 
 Pivot* Pivot::CopyEntity(Entity* parent_ent){
 
-	if(parent_ent==NULL) parent_ent=Global::root_ent;
-
 	// new piv
 	Pivot* piv=new Pivot;
 
@@ -98,8 +96,6 @@ void Pivot::FreeEntity(){
 }
 
 Pivot* Pivot::CreatePivot(Entity* parent_ent){
-
-	if(parent_ent==NULL) parent_ent=Global::root_ent;
 
 	Pivot* piv=new Pivot;
 	piv->class_name="Pivot";

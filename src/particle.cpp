@@ -277,7 +277,6 @@ void ParticleEmitter::Update(){
 }
 
 ParticleEmitter* ParticleEmitter::CreateParticleEmitter(Entity* particle, Entity* parent_ent){
-	if(parent_ent==NULL) parent_ent=Global::root_ent;
 
 	ParticleEmitter* emitter=new ParticleEmitter;
 
@@ -302,7 +301,6 @@ ParticleEmitter* ParticleEmitter::CreateParticleEmitter(Entity* particle, Entity
 }
 
 ParticleEmitter* ParticleEmitter::CopyEntity(Entity* parent_ent){
-	if(parent_ent==NULL) parent_ent=Global::root_ent;
 
 	ParticleEmitter* emitter=new ParticleEmitter;
 
