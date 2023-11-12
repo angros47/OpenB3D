@@ -883,15 +883,15 @@ void Entity::SetAnimKey(float frame, int pos_key, int rot_key, int scale_key){
 					float x=surf.vert_coords[i*3];
 					float y=surf.vert_coords[i*3+1];
 					float z=surf.vert_coords[i*3+2];
-					if (pos_key){
-						x+=px;
-						y+=py;
-						z-=pz;
-					}
 					if (scale_key){
 						x*=sx;
 						y*=sy;
 						z*=sz;
+					}
+					if (pos_key){
+						x+=px;
+						y+=py;
+						z-=pz;
 					}
 					if (rot_key){
 						rotmat.TransformVec(x,y,z);
