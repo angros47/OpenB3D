@@ -883,6 +883,9 @@ void Entity::SetAnimKey(float frame, int pos_key, int rot_key, int scale_key){
 					float x=surf.vert_coords[i*3];
 					float y=surf.vert_coords[i*3+1];
 					float z=surf.vert_coords[i*3+2];
+					if (rot_key){
+						rotmat.TransformVec(x,y,z);
+					}
 					if (scale_key){
 						x*=sx;
 						y*=sy;
@@ -892,9 +895,6 @@ void Entity::SetAnimKey(float frame, int pos_key, int rot_key, int scale_key){
 						x+=px;
 						y+=py;
 						z-=pz;
-					}
-					if (rot_key){
-						rotmat.TransformVec(x,y,z);
 					}
 					surf.vert_coords.insert(surf.vert_coords.begin()+i*3+t, x);
 					surf.vert_coords.insert(surf.vert_coords.begin()+i*3+1+t, y);
