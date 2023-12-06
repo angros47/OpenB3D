@@ -963,17 +963,17 @@ Mesh* Mesh::CreateCone(int segments,int solid,Entity* parent_ent){
 		bl=thissurf->AddVertex(XPos,-height,ZPos,upos-udiv,1);
 		thissurf->VertexTexCoords(bl,upos-udiv,1,0.0,1); // 2nd tex coord set
 
-		if(solid==true) newbs=thissidesurf->AddVertex(XPos,-height,ZPos,XPos/2.0+0.5,ZPos/2.0+0.5);
-		if(solid==true) thissidesurf->VertexTexCoords(newbs,XPos/2.0+0.5,ZPos/2.0+0.5,0.0,1); // 2nd tex coord set
+		if(solid==true && i<(segments-1)){
+			newbs=thissidesurf->AddVertex(XPos,-height,ZPos,XPos/2.0+0.5,ZPos/2.0+0.5);
+			thissidesurf->VertexTexCoords(newbs,XPos/2.0+0.5,ZPos/2.0+0.5,0.0,1); // 2nd tex coord set
+		}
 
 		thissurf->AddTriangle(bl,top,br);
 
-		if(solid==true){
+		if(solid==true && i<(segments-1)){
 			thissidesurf->AddTriangle(newbs,bs1,bs0);
 
-			if(i<(segments-1)){
-				bs1=newbs;
-			}
+			bs1=newbs;
 		}
 	}
 
