@@ -1,3 +1,9 @@
+V1.262
+Fixed
+-CreateCone added one triangle in the base that was unnecessary and disturbed the collision checking
+-Updated the image loader
+-EntityType didn't work correctly when used a second time on the same entity
+
 V1.261
 Fixed
 -CopyEntity for voxel sprites
