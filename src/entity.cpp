@@ -1016,14 +1016,14 @@ void Entity::EntityType(int type_no,int recursive){
 		dynamic=true;
 	}
 
-	// add to collision entity list if new type no<>0 and not previously added
-	if(collision_type==0 && type_no!=0){
-		CollisionPair::ent_lists[type_no].push_back(this);
+	// remove from collision entity list if  previously added
+	if(collision_type!=0){
+		CollisionPair::ent_lists[collision_type].remove(this);
 	}
 
-	// remove from collision entity list if new type no=0 and previously added
-	if(collision_type!=0 && type_no==0){
-		CollisionPair::ent_lists[type_no].remove(this);
+	// add to collision entity list if new type no<>0 
+	if(type_no!=0){
+		CollisionPair::ent_lists[type_no].push_back(this);
 	}
 
 	collision_type=type_no;
