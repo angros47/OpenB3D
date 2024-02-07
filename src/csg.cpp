@@ -930,7 +930,7 @@ Mesh* MeshCSG(Mesh* m1, Mesh* m2, int method){
 	}
 
 	//rebuild 1st mesh, and leave out triangles inside/outside 2nd mesh (dep. on method)
-	RebuildMesh(mesh1, m2, (method==2), false); //mesh, other mesh, invert, keepshared
+	RebuildMesh(mesh1, m2, (method>=2), false); //mesh, other mesh, invert, keepshared
 	
 	//setup second mesh
 	//mesh2->FreeEntity();
@@ -945,6 +945,12 @@ Mesh* MeshCSG(Mesh* m1, Mesh* m2, int method){
 	//setup partA	
 	Mesh* partA = mesh1;
 	
+	//DECAL
+	if (method==3) {
+		mesh2->FreeEntity();
+		return mesh1;
+	}
+
 	//part B
 	mesh1 = CopyMeshAt(m1);
 	//mesh2 = CopyMeshAt(m2);

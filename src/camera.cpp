@@ -472,7 +472,6 @@ void Camera::Update(){
 
 	//fog
 
-	static int fog=-1;
 	static float fog_near=-1.0;
 	static float fog_far=-1.0;
 	static float fogr=-1.0;
@@ -482,10 +481,9 @@ void Camera::Update(){
 #ifndef GLES2
 	if(fog_mode>0){
 	
-		if(fog!=true){
+		if(Global::fog_enabled!=true){
 			glEnable(GL_FOG); // enable if disabled
-			if(fog==-1) glFogf(GL_FOG_MODE,GL_LINEAR); // once only
-			fog=true;
+			glFogf(GL_FOG_MODE,GL_LINEAR);
 			Global::fog_enabled=true; // used in mesh render
 		}
 		
@@ -509,9 +507,8 @@ void Camera::Update(){
 		
 	}else{
 		
-		if(fog!=false){
+		if(Global::fog_enabled!=false){
 			glDisable(GL_FOG);
-			fog=false;
 			Global::fog_enabled=false; // used in mesh render
 		}
 		
