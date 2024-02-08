@@ -1,3 +1,10 @@
+V1.3
+Added
+-MeshCSG can now create decal mesh
+
+Fixed
+-fog with multiple cameras
+
 V1.262
 Fixed
 -CreateCone added one triangle in the base that was unnecessary and disturbed the collision checking
