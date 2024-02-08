@@ -105,7 +105,7 @@ void Global::Graphics(){
 
 	//glDisable(GL_BLEND);
 
-	glEnable(GL_FOG);
+	//glEnable(GL_FOG);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_SCISSOR_TEST);
 
