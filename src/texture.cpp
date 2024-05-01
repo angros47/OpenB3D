@@ -114,6 +114,7 @@ Texture* Texture::LoadTexture(string filename,int flags){
 					gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_RGBA,tex->width, tex->height, GL_RGBA, GL_UNSIGNED_BYTE, dstbuffer);
 					break;
 			}
+		}
 #else
 			switch(i){
 				case 0:
@@ -135,9 +136,9 @@ Texture* Texture::LoadTexture(string filename,int flags){
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, tex->width, tex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dstbuffer);
 					break;
 			}
-			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-#endif
 		}
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+#endif
 		delete[] dstbuffer;
 		stbi_image_free(buffer);
 
