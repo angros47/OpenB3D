@@ -684,7 +684,11 @@ void Shader::TurnOn(Matrix& mat, Surface* surf, vector<float>* vertices, Brush* 
 
 		No_samplers++;
 #else
-		glBindTexture(GL_TEXTURE_2D,texture); // call before glTexParameteri
+		if(tex_flags&128){
+			glBindTexture(GL_TEXTURE_CUBE_MAP,texture);
+		}else{
+			glBindTexture(GL_TEXTURE_2D,texture);
+		}
 #endif
 
 						
