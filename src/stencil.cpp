@@ -146,6 +146,7 @@ void Stencil::UseStencil(){
 	//glDisable(GL_POLYGON_OFFSET_FILL);
 
 #ifndef GLES2
+	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 		glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW);

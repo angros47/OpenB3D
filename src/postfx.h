@@ -54,6 +54,7 @@ public:
 	void PostFXTexture(int pass_no, Texture* tex, int slot, int frame=0);
 	void PostFXFunction(int pass_no, void (*PassFunction)(void));
 	void Render();
+	void FreePostFX();
 
 
 

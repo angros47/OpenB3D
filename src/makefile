@@ -1,11 +1,11 @@
 CCMPILER = g++
 CC=g++ -fPIC -Wall -O3 
 
-OBJECTS = model.o string_helper.o surface.o bank.o bone.o brush.o collision.o entity.o functions.o geom.o global.o light.o matrix.o pick.o pivot.o project.o sprite.o tilt.o touch.o texture_filter.o tree.o animation.o animation_keys.o collision2.o maths_helper.o quaternion.o sprite_batch.o camera.o file.o mesh.o texture.o terrain.o stb_image.o 3ds.o collidetri.o shadow.o material.o stencil.o csg.o voxel.o x.o octree.o geosphere.o md2.o isosurface.o particle.o physics.o actions.o postfx.o
+OBJECTS = model.o string_helper.o surface.o bank.o bone.o brush.o collision.o entity.o functions.o geom.o global.o light.o matrix.o pick.o pivot.o project.o sprite.o tilt.o touch.o texture_filter.o tree.o animation.o animation_keys.o collision2.o maths_helper.o quaternion.o sprite_batch.o camera.o file.o mesh.o texture.o terrain.o stb_image.o 3ds.o collidetri.o shadow.o material.o stencil.o csg.o voxel.o x.o octree.o geosphere.o md2.o isosurface.o particle.o physics.o actions.o postfx.o obj.o
 
 main:$(OBJECTS) 
 ifeq ($(shell uname), Linux)
-	$(CC) -shared -o libOpenB3D.so $(OBJECTS)  -lGL -lGLU
+	$(CC) -shared -o libOpenB3D.so $(OBJECTS) -lGLU
 else
 	$(CC) -shared -o openb3d.dll $(OBJECTS)  -lGLee -lopengl32 -lglu32 -lGDI32 -static
 endif
@@ -156,6 +156,9 @@ voxel.o : voxel.cpp voxel.h
 
 x.o : x.cpp x.h
 	$(CC) -c x.cpp -o x.o
+
+obj.o  : obj.cpp obj.h
+	$(CC) -c obj.cpp -o obj.o
 
 collidetri.o	: collidetri.c
 	gcc -fPIC -c collidetri.c -o collidetri.o

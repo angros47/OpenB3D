@@ -872,6 +872,10 @@ void FreeEntity(Entity* ent){
 	ent->FreeEntity();
 }
 
+void FreePostFX(PostFX* fx){
+	fx->FreePostFX();
+}
+
 void FreeRigidBody(RigidBody* body){
 	body->FreeRigidBody();
 }

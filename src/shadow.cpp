@@ -509,6 +509,7 @@ void ShadowObject::ShadowRenderWorldZFail(){
 
 // NOTE: is it the projektion matrix ?
 #ifndef GLES2
+	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	  glLoadIdentity();
 	  glMatrixMode(GL_MODELVIEW);

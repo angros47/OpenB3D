@@ -69,6 +69,18 @@ PostFX* PostFX::CreatePostFX(Camera* cam, int passes){
 	return postfx;
 }
 
+void PostFX::FreePostFX(){
+	for (int it=0; it<no_passes; it++){
+		delete pass[it].tex;
+	}
+
+	delete []pass;
+	delete []framebuffer;
+
+	fx_list.remove(this);
+	delete this;
+}
+
 void PostFX::AddRenderTarget(int pass_no, int numColBufs, bool depth, int format, float scale){
 	int numT=numColBufs;
 	if (depth) 

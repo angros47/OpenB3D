@@ -69,16 +69,17 @@ USE_FUNCTION
 
 
 void Shader::FreeShader(){
-	if(!arb_program->Program) return;
-	arb_program->DeActivate(); // Ensure the shader is not used
-	
-	list<int>::iterator it;
-	for(it=arb_program->sList.begin();it!=arb_program->sList.end();it++){
-		glDeleteShader(*it);
+	if(arb_program->Program) {
+		arb_program->DeActivate(); // Ensure the shader is not used
+		
+		list<int>::iterator it;
+		for(it=arb_program->sList.begin();it!=arb_program->sList.end();it++){
+			glDeleteShader(*it);
+		}
+		
+		glDeleteProgram(arb_program->Program);
+		delete arb_program;
 	}
-	
-	glDeleteProgram(arb_program->Program);
-	delete arb_program;
 	for (int ix=0; ix<texCount; ix++){
 		delete Shader_Tex[ix];
 	}

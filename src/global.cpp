@@ -483,6 +483,10 @@ void Global::ClearWorld(int entities,int brushes,int textures){
 			act->act=ACT_COMPLETED;
 		}
 
+		while (!PostFX::fx_list.empty()) {
+			PostFX* p=*PostFX::fx_list.begin();
+			p->FreePostFX();
+		}
 	}
 
 	if(brushes){
