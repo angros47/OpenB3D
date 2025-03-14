@@ -1,3 +1,26 @@
+v1.4
+Added
+-support for .obj format
+-Inverse kinematics with MoveBone
+-Commands PositionBone and RotateBone
+-Commands CountBones and GetBone
+-Command FreePostFX
+-Commands ActStop, ActWait, ActExecute
+-Command ActIterator
+-Commands TriggerCloseTo, TriggerDistance, TriggerCollision
+
+Changed
+-UseSurface cannot specify anymore a surface from another mesh
+-OctreeBlock now has an extra parameter to decide whether that block will be counted in collisions or not
+-FreeAction now has an extra parameter to specify if appended actions, too, must be stopped
+-EntityType now doesn't accept negative values anymore: to set an entity for dynamic collision, the flag 2 must be used
+
+Fixed
+-Shaders that required UseSurface didn't work with animated meshes
+-TranslateEntity ignored the global parameter
+-in .b3d files bone weights weren't normalized, and that caused issues with models exported by Blender, that appeared deformed
+-it is now possible to manually animate a mesh by rotating or moving its bones even during regular animations, for bones that don't have keyframes in that specific sequence
+
 V1.3
 Added
 -MeshCSG can now create decal mesh
