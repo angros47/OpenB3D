@@ -290,7 +290,7 @@ Mesh* LoadMD2(string filename,Entity* parent_ent){
 	mesh->no_surfs=-1;
 
 
-	delete st;
+	delete[] st;
 	return mesh;
 
 }

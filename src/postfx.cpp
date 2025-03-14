@@ -211,6 +211,7 @@ void PostFX::Render(){
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glDisable(GL_LIGHTING);
+	glClientActiveTexture(GL_TEXTURE0);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glLoadIdentity();
@@ -309,7 +310,7 @@ void PostFX::Render(){
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 #else
 	glDisableVertexAttribArray(0);

@@ -273,6 +273,8 @@ bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=CopyMesh">Onl
 */
 Mesh* DLL_EXPORT CopyMesh(Mesh* mesh,Entity* parent);
 
+int DLL_EXPORT CountBones(Mesh* mesh);
+
 /*
 bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=CountSurfaces">Online Help</a>
 */
@@ -288,6 +290,10 @@ bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=CountVertices
 */
 int DLL_EXPORT CountVertices(Surface* surf);
 
+Blob* DLL_EXPORT CreateBlob(Fluid* fluid, float radius, Entity* parent_ent);
+
+Bone* DLL_EXPORT CreateBone(Mesh* mesh, Entity* parent_ent);
+
 /*
 bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=CreateBrush">Online Help</a>
 */
@@ -297,6 +303,8 @@ Brush* DLL_EXPORT CreateBrush(float r,float g,float b);
 bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=CreateCamera">Online Help</a>
 */
 Camera* DLL_EXPORT CreateCamera(Entity* parent);
+
+Constraint* DLL_EXPORT CreateConstraint(Entity* p1, Entity* p2, float l);
 
 /*
 bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=CreateCone">Online Help</a>
@@ -551,6 +559,10 @@ void DLL_EXPORT FreeShadow(ShadowObject* shad);
 bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=FreeTexture">Online Help</a>
 */
 void DLL_EXPORT FreeTexture(Texture* tex);
+
+void DLL_EXPORT GeosphereHeight(Geosphere* geo, float h);
+
+Bone* DLL_EXPORT GetBone(Mesh* mesh,int id);
 
 /*
 bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=GetBrushTexture">Online Help</a>

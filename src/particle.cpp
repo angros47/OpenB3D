@@ -92,7 +92,27 @@ void ParticleBatch::Render(){
 
 
 	if(surf->ShaderMat!=NULL){
-		surf->ShaderMat->TurnOn(mat, surf, 0, &brush);
+#ifndef GLES2
+		if (surf->ShaderMat->legacy!=0) surf->ShaderMat->surf=surf;
+		if (surf->ShaderMat->cols_loc){
+			glEnableVertexAttribArray(surf->ShaderMat->cols_loc);
+			glVertexAttribPointer(surf->ShaderMat->cols_loc, 4, GL_FLOAT, GL_FALSE, 0, &surf->vert_col[0]);
+		}
+
+#else
+		glBindBuffer(GL_ARRAY_BUFFER, surf->vbo_id[0]);
+		glBufferData(GL_ARRAY_BUFFER,(surf->no_verts*3*sizeof(float)),&surf->vert_coords[0],GL_STREAM_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		if (surf->ShaderMat->cols_loc){
+			glEnableVertexAttribArray(surf->ShaderMat->cols_loc);
+			glBindBuffer(GL_ARRAY_BUFFER,surf->vbo_id[4]);
+			glBufferData(GL_ARRAY_BUFFER,(surf->no_verts*4*sizeof(float)),&surf->vert_col[0],GL_STREAM_DRAW);
+			glVertexAttribPointer(surf->ShaderMat->cols_loc, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		}
+#endif
+		surf->ShaderMat->TurnOn(mat, &brush);
 	}else{
 #ifndef GLES2
 		glEnable( GL_POINT_SPRITE ); 
@@ -148,12 +168,15 @@ void ParticleBatch::Render(){
 		//glTexEnvf(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
 		glBindTexture(GL_TEXTURE_2D, brush.tex[0]->texture);
 
-		surf->reset_vbo=9;
-		surf->UpdateVBO();
+		//surf->reset_vbo=9;
+		//surf->UpdateVBO();
 		glBindBuffer(GL_ARRAY_BUFFER,surf->vbo_id[0]);
+		glBufferData(GL_ARRAY_BUFFER,(surf->no_verts*3*sizeof(float)),&surf->vert_coords[0],GL_STREAM_DRAW);
 		glVertexAttribPointer(Global::shader->vposition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(Global::shader->vposition);
+
 		glBindBuffer(GL_ARRAY_BUFFER,surf->vbo_id[4]);
+		glBufferData(GL_ARRAY_BUFFER,(surf->no_verts*4*sizeof(float)),&surf->vert_col[0],GL_STREAM_DRAW);
 		glVertexAttribPointer(Global::shader->color, 4, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(Global::shader->color);
 		glUniform1i(Global::shader->texflag, brush.tex[0]->flags&4);
@@ -288,12 +311,7 @@ ParticleEmitter* ParticleEmitter::CreateParticleEmitter(Entity* particle, Entity
 	entity_list.push_back(emitter);
 
 	// update matrix
-	if(emitter->parent!=NULL){
-		emitter->mat.Overwrite(emitter->parent->mat);
-		emitter->UpdateMat();
-	}else{
-		emitter->UpdateMat(true);
-	}
+	emitter->MQ_Update();
 
 	emitter_list.push_back(emitter);
 
@@ -341,13 +359,6 @@ ParticleEmitter* ParticleEmitter::CopyEntity(Entity* parent_ent){
 	emitter->sx=sx;
 	emitter->sy=sy;
 	emitter->sz=sz;
-	emitter->rx=rx;
-	emitter->ry=ry;
-	emitter->rz=rz;
-	emitter->qw=qw;
-	emitter->qx=qx;
-	emitter->qy=qy;
-	emitter->qz=qz;
 
 	emitter->name=name;
 	emitter->class_name=class_name;

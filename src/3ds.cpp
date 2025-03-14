@@ -405,12 +405,7 @@ Mesh* Load3ds(string URL, Entity* parent_ent){
   mesh->class_name="Mesh";
   mesh->AddParent(parent_ent);
   Entity::entity_list.push_back(mesh);
-  if(mesh->parent!=0){
-    mesh->mat.Overwrite(mesh->parent->mat);
-    mesh->UpdateMat();
-  }else{
-    mesh->UpdateMat(true);
-  }
+  mesh->MQ_Update();
   return mesh;
 }
 

@@ -19,6 +19,7 @@ public:
 
 	static VoxelSprite* CreateVoxelSprite(int slices=64, Entity* parent_ent=NULL);
 	VoxelSprite* CopyEntity(Entity* parent_ent=NULL);
+	void FreeEntity(void);
 	void VoxelSpriteMaterial(Material* mat);
 	void Render();
 

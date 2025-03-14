@@ -117,9 +117,6 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 	float n_sx=0.0;
 	float n_sy=0.0;
 	float n_sz=0.0;
-	float n_rx=0.0;
-	float n_ry=0.0;
-	float n_rz=0.0;
 	float n_qw=0.0;
 	float n_qx=0.0;
 	float n_qy=0.0;
@@ -412,7 +409,7 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 			n_name=b3dReadString(file);
 			n_px=file->ReadFloat();
 			n_py=file->ReadFloat();
-			n_pz=file->ReadFloat()*-1;
+			n_pz=file->ReadFloat();
 			n_sx=file->ReadFloat();
 			n_sy=file->ReadFloat();
 			n_sz=file->ReadFloat();
@@ -420,13 +417,10 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 			n_qx=file->ReadFloat();
 			n_qy=file->ReadFloat();
 			n_qz=file->ReadFloat();
-			float pitch=0;
+			/*float pitch=0;
 			float yaw=0;
 			float roll=0;
-			QuatToEuler(n_qw,n_qx,n_qy,-n_qz,pitch,yaw,roll);
-			n_rx=-pitch;
-			n_ry=yaw;
-			n_rz=roll;
+			QuatToEuler(n_qw,n_qx,n_qy,-n_qz,pitch,yaw,roll);*/
 
 			new_tag=ReadTag(file);
 
@@ -443,13 +437,6 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 				piv->sx=n_sx;
 				piv->sy=n_sy;
 				piv->sz=n_sz;
-				piv->rx=n_rx;
-				piv->ry=n_ry;
-				piv->rz=n_rz;
-				piv->qw=n_qw;
-				piv->qx=n_qx;
-				piv->qy=n_qy;
-				piv->qz=n_qz;
 
 				//piv.UpdateMat(True)
 				Entity::entity_list.push_back(piv);
@@ -464,20 +451,21 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 				// if ent nested then add parent
 				if(node_level>0) piv->AddParent(parent_ent);
 
-				QuatToMat(-n_qw,n_qx,n_qy,-n_qz,piv->mat);
+				/*QuatToMat(-n_qw,n_qx,n_qy,-n_qz,piv->mat);
 
 				piv->mat.grid[3][0]=n_px;
 				piv->mat.grid[3][1]=n_py;
 				piv->mat.grid[3][2]=n_pz;
 
-				piv->mat.Scale(n_sx,n_sy,n_sz);
+				piv->mat.Scale(n_sx,n_sy,n_sz);*/
+				piv->rotmat.FromQuaternion(n_qx, n_qy, -n_qz, n_qw);
 
-				if(piv->parent!=NULL){
+				/*if(piv->parent!=NULL){
 					Matrix* new_mat=piv->parent->mat.Copy();
 					new_mat->Multiply(piv->mat);
 					piv->mat.Overwrite(*new_mat);//.Multiply(mat)
 					delete new_mat;
-				}
+				}*/
 
 			}
 
@@ -494,13 +482,6 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 			mesh->sx=n_sx;
 			mesh->sy=n_sy;
 			mesh->sz=n_sz;
-			mesh->rx=n_rx;
-			mesh->ry=n_ry;
-			mesh->rz=n_rz;
-			mesh->qw=n_qw;
-			mesh->qx=n_qx;
-			mesh->qy=n_qy;
-			mesh->qz=n_qz;
 
 			Entity::entity_list.push_back(mesh);
 			last_ent=mesh;
@@ -514,20 +495,21 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 			// if ent nested then add parent
 			if(node_level>0) mesh->AddParent(parent_ent);
 
-			QuatToMat(-n_qw,n_qx,n_qy,-n_qz,mesh->mat);
+			/*QuatToMat(-n_qw,n_qx,n_qy,-n_qz,mesh->mat);
 
 			mesh->mat.grid[3][0]=n_px;
 			mesh->mat.grid[3][1]=n_py;
 			mesh->mat.grid[3][2]=n_pz;
 
-			mesh->mat.Scale(n_sx,n_sy,n_sz);
+			mesh->mat.Scale(n_sx,n_sy,n_sz);*/
+			mesh->rotmat.FromQuaternion(n_qx, n_qy, -n_qz, n_qw);
 
-			if(mesh->parent!=NULL){
+			/*if(mesh->parent!=NULL){
 				Matrix* new_mat=mesh->parent->mat.Copy();
 				new_mat->Multiply(mesh->mat);
 				mesh->mat.Overwrite(*new_mat);//.Multiply(mat)
 				delete new_mat;
-			}
+			}*/
 
 		}else if(tag_id==VRTS){
 
@@ -711,7 +693,7 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 
 					Surface& anim_surf=**it;
 
-					if(bo_vert_id>=anim_surf.vmin && bo_vert_id<=anim_surf.vmax){
+					if(bo_vert_id>=anim_surf.vmin && bo_vert_id<=anim_surf.vmax && bo_vert_w>0){
 
 						int vid=bo_vert_id-anim_surf.vmin;
 
@@ -771,15 +753,12 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 			bo_bone->sx=n_sx;
 			bo_bone->sy=n_sy;
 			bo_bone->sz=n_sz;
-			bo_bone->rx=n_rx;
-			bo_bone->ry=n_ry;
-			bo_bone->rz=n_rz;
 			bo_bone->qw=n_qw;
 			bo_bone->qx=n_qx;
 			bo_bone->qy=n_qy;
 			bo_bone->qz=n_qz;
 
-			bo_bone->n_px=n_px;
+			/*bo_bone->n_px=n_px;
 			bo_bone->n_py=n_py;
 			bo_bone->n_pz=n_pz;
 			bo_bone->n_sx=n_sx;
@@ -791,7 +770,7 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 			bo_bone->n_qw=n_qw;
 			bo_bone->n_qx=n_qx;
 			bo_bone->n_qy=n_qy;
-			bo_bone->n_qz=n_qz;
+			bo_bone->n_qz=n_qz;*/
 
 			bo_bone->keys=new AnimationKeys();
 
@@ -814,20 +793,35 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 			// if ent nested then add parent
 			if(node_level>0) bo_bone->AddParent(parent_ent);
 
-			QuatToMat(-bo_bone->n_qw,bo_bone->n_qx,bo_bone->n_qy,-bo_bone->n_qz,bo_bone->mat);
+/*			QuatToMat(-n_qw,n_qx,n_qy,-n_qz,bo_bone->mat);
 
-			bo_bone->mat.grid[3][0]=bo_bone->n_px;
-			bo_bone->mat.grid[3][1]=bo_bone->n_py;
-			bo_bone->mat.grid[3][2]=bo_bone->n_pz;
+			bo_bone->mat.grid[3][0]=n_px;
+			bo_bone->mat.grid[3][1]=n_py;
+			bo_bone->mat.grid[3][2]=n_pz;
 
-			if(bo_bone->parent!=NULL && dynamic_cast<Bone*>(bo_bone->parent)!=NULL){ // And... onwards needed to prevent inv_mat being incorrect if external parent supplied
+			bo_bone->mat.Scale(n_sx,n_sy,n_sz);
+
+			if(bo_bone->parent!=NULL){
 				Matrix* new_mat=bo_bone->parent->mat.Copy();
 				new_mat->Multiply(bo_bone->mat);
-				bo_bone->mat.Overwrite(*new_mat);
+				bo_bone->mat.Overwrite(*new_mat);//.Multiply(mat)
 				delete new_mat;
+			}*/
+
+			//QuatToMat(-bo_bone->n_qw,bo_bone->n_qx,bo_bone->n_qy,-bo_bone->n_qz,bo_bone->rotmat);
+			bo_bone->rotmat.FromQuaternion(n_qx, n_qy, -n_qz, n_qw);
+
+			bo_bone->mat2.Overwrite(bo_bone->rotmat);
+			bo_bone->mat2.grid[3][0]=n_px;
+			bo_bone->mat2.grid[3][1]=n_py;
+			bo_bone->mat2.grid[3][2]=-n_pz;
+
+			if(dynamic_cast<Bone*>(bo_bone->parent)!=NULL){
+				bo_bone->mat2.Multiply2(dynamic_cast<Bone*>(bo_bone->parent)->mat2);
 			}
 
-			bo_bone->mat.GetInverse(bo_bone->inv_mat);
+
+			bo_bone->mat2.GetInverse(bo_bone->inv_mat);
 
 			if(new_tag!="KEYS"){
 				Entity::entity_list.push_back(bo_bone);
@@ -857,13 +851,13 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 					k_sz=file->ReadFloat();
 				}
 				if(k_flags&4){
-					k_qw=-file->ReadFloat();
+					k_qw=file->ReadFloat();
 					k_qx=file->ReadFloat();
 					k_qy=file->ReadFloat();
 					k_qz=-file->ReadFloat();
 				}
 
-				if(bo_bone!=NULL){ // check if bo_bone exists - it won't for non-boned, keyframe anims
+				if(bo_bone!=NULL && k_frame<=a_frames){ // check if bo_bone exists - it won't for non-boned, keyframe anims. Also, ignore frames that exceed max animation length
 
 					bo_bone->keys->flags[k_frame]=bo_bone->keys->flags[k_frame]+k_flags;
 
@@ -912,6 +906,22 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 
 	file->CloseFile();
 
+	//normalize bone weights
+	if (mesh){
+		list<Surface*>::iterator it;
+		for(it=mesh->anim_surf_list.begin();it!=mesh->anim_surf_list.end();it++){
+			Surface& anim_surf=**it;
+			for(int vid=0;vid<=anim_surf.no_verts;vid++){
+				float n=(anim_surf.vert_weight4[vid]+anim_surf.vert_weight3[vid]+anim_surf.vert_weight2[vid]+anim_surf.vert_weight1[vid]);
+				anim_surf.vert_weight4[vid]/=n;
+				anim_surf.vert_weight3[vid]/=n;
+				anim_surf.vert_weight2[vid]/=n;
+				anim_surf.vert_weight1[vid]/=n;
+			}
+		}
+
+	}
+
 	vector<Brush*>::iterator it;
 
 	for(it=brush.begin();it!=brush.end();it++){
@@ -925,6 +935,8 @@ Mesh* LoadAnimB3D(string f_name,Entity* parent_ent_ext){
 	//ChangeDir(cd); // ***todo***
 
 	//cout << endl << "Finished loading b3d" << endl;
+
+	root_ent->MQ_Update();
 
 	return dynamic_cast<Mesh*> (root_ent);
 

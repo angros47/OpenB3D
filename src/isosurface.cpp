@@ -401,7 +401,7 @@ Fluid* Fluid::CreateFluid(){
 
 	entity_list.push_back(fluid);
 
-	fluid->UpdateMat(true);
+	fluid->MQ_Update();
 
 	fluid->min_x=-999999999;
 	fluid->max_x=999999999;
@@ -1272,9 +1272,30 @@ void Fluid::Render(){
 #endif
 
 	if(surf->ShaderMat!=NULL){
-		surf->reset_vbo=1|2|4;
-		surf->UpdateVBO();
-		surf->ShaderMat->TurnOn(mat, surf, 0, &brush);
+
+#ifndef GLES2
+		if (surf->ShaderMat->legacy!=0) surf->ShaderMat->surf=surf;
+		if (surf->ShaderMat->norms_loc){
+			glEnableVertexAttribArray(surf->ShaderMat->norms_loc);
+			glVertexAttribPointer(surf->ShaderMat->norms_loc, 3, GL_FLOAT, GL_FALSE, 0, &surf->vert_norm[0]);
+		}
+
+#else
+		glBindBuffer(GL_ARRAY_BUFFER, surf->vbo_id[0]);
+		glBufferData(GL_ARRAY_BUFFER,(surf->no_verts*3*sizeof(float)),&surf->vert_coords[0],GL_STREAM_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		if (surf->ShaderMat->norms_loc){
+			glEnableVertexAttribArray(surf->ShaderMat->norms_loc);
+			glBindBuffer(GL_ARRAY_BUFFER,surf->vbo_id[3]);
+			glBufferData(GL_ARRAY_BUFFER,(surf->no_verts*3*sizeof(float)),&surf->vert_norm[0],GL_STREAM_DRAW);
+			glVertexAttribPointer(surf->ShaderMat->norms_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		}
+#endif
+
+
+		surf->ShaderMat->TurnOn(mat, &brush);
 	}else{
 
 #ifndef GLES2
@@ -1589,12 +1610,15 @@ void Fluid::Render(){
 	if (brush.fx&8 && Global::fog_enabled==true){
 		glEnable(GL_FOG);
 	}
-	if(surf->ShaderMat!=NULL){
-		surf->ShaderMat->TurnOff();
-	}
 #else
 	glDisableVertexAttribArray(Global::shader->vposition);
 #endif
+	if(surf->ShaderMat!=NULL){
+		surf->ShaderMat->TurnOff();
+		if (surf->ShaderMat->norms_loc){
+			glDisableVertexAttribArray(surf->ShaderMat->norms_loc);
+		}
+	}
 
 }
 
@@ -1621,12 +1645,7 @@ Blob* Blob::CreateBlob(Fluid* fluid, float radius, Entity* parent_ent){
 	entity_list.push_back(blob);
 
 	// update matrix
-	if(blob->parent!=NULL){
-		blob->mat.Overwrite(blob->parent->mat);
-		blob->UpdateMat();
-	}else{
-		blob->UpdateMat(true);
-	}
+	blob->MQ_Update();
 
 	blob->charge=radius;
 	float crs=radius*radius;
@@ -1686,13 +1705,6 @@ Blob* Blob::CopyEntity(Entity* parent_ent){
 	blob->sx=sx;
 	blob->sy=sy;
 	blob->sz=sz;
-	blob->rx=rx;
-	blob->ry=ry;
-	blob->rz=rz;
-	blob->qw=qw;
-	blob->qx=qx;
-	blob->qy=qy;
-	blob->qz=qz;
 
 	blob->name=name;
 	blob->class_name=class_name;

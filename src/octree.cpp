@@ -198,8 +198,8 @@ void OcTree::OctreeMesh(Mesh* mesh, int level, float X, float Y, float Z, float 
 
 }
 
-void OcTree::OctreeBlock(Mesh* mesh, int level, float X, float Y, float Z, float Near, float Far){
-	child.AddToOctree(mesh, level, X, Y, Z, Near, Far, 1);
+void OcTree::OctreeBlock(Mesh* mesh, int level, float X, float Y, float Z, float Near, float Far, int solid){
+	child.AddToOctree(mesh, level, X, Y, Z, Near, Far, (solid!=0)?1:2);
 
 }
 
@@ -570,7 +570,7 @@ void OcTreeChild::Coll_Child(){
 				delete [] verts;
 			}
 
-		} else {
+		} else if (isBlock==0) {
 			mesh->hide=false;		//Unhide mesh, so collision checking can be done
 			delete_list->push_back(mesh);
 
@@ -676,13 +676,6 @@ OcTree* OcTree::CopyEntity(Entity* parent_ent){
 	oct->sx=sx;
 	oct->sy=sy;
 	oct->sz=sz;
-	oct->rx=rx;
-	oct->ry=ry;
-	oct->rz=rz;
-	oct->qw=qw;
-	oct->qx=qx;
-	oct->qy=qy;
-	oct->qz=qz;
 
 	oct->name=name;
 	oct->class_name=class_name;

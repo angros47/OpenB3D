@@ -79,8 +79,8 @@ class ProgramObject{
 
 	//-------------------------------------------------------------------------------------
 	//  Array Parameter
-	void SetParameterArray(int name, Surface* surf, int vbo);
-	void SetParameterArray(int name, vector<float>* vertices, int vbo);
+	/*void SetParameterArray(int name, Surface* surf, int vbo);
+	void SetParameterArray(int name, vector<float>* vertices, int vbo);*/
 
 	//-------------------------------------------------------------------------------------
 	// Float Parameter

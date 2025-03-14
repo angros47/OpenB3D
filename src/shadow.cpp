@@ -557,7 +557,7 @@ void ShadowObject::ShadowRenderWorldZFail(){
 	    glEnable(GL_DEPTH_TEST);
 	  glPopMatrix();
 	  // NOTE: is it the projektion matrix ?
-	  glMatrixMode(GL_MODELVIEW);
+	  glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 #else
 	Global::shader=&Global::shader_stencil;
@@ -574,6 +574,7 @@ void ShadowObject::ShadowRenderWorldZFail(){
 	glEnableVertexAttribArray(Global::shader->vposition);
  
 	glDrawArrays(GL_TRIANGLE_FAN,0,4);
+	glEnable(GL_DEPTH_TEST);
 
 #endif
 

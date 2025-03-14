@@ -17,9 +17,10 @@ using namespace std;
 
 class Bone : public Entity{
 
+	void bone_update();
 public:
 
-	float n_px,n_py,n_pz,n_sx,n_sy,n_sz,n_rx,n_ry,n_rz,n_qw,n_qx,n_qy,n_qz;
+	float qw,qx,qy,qz;
 
 	AnimationKeys* keys;
 
@@ -28,13 +29,11 @@ public:
 	Matrix inv_mat; // set in TModel, when loading anim mesh
 	Matrix tform_mat;
 
-	float kx,ky,kz,kqw,kqx,kqy,kqz; // used to store current keyframe in AnimateMesh, for use with transition
+	//float kx,ky,kz,kqw,kqx,kqy,kqz; // used to store current keyframe in AnimateMesh, for use with transition
 
 	Bone(){
 
-		n_px=n_py=n_pz=n_sx=n_sy=n_sz=n_rx=n_ry=n_rz=n_qw=n_qx=n_qy=n_qz=0.0;
-
-		kx=ky=kz=kqw=kqx=kqy=kqz=0.0;
+		qw=1.0,qx=0.0,qy=0.0,qz=0.0;
 
 		keys=NULL;
 
@@ -42,6 +41,10 @@ public:
 
 	Bone* CopyEntity(Entity* parent_ent=NULL);
 	void FreeEntity(void);
+
+	void RotateBone(float pitch,float yaw,float roll);
+	void PositionBone(float x,float y,float z);
+	int MoveBone(float x,float y,float z, int segments);
 
 };
 

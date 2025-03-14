@@ -93,13 +93,6 @@ Geosphere* Geosphere::CopyEntity(Entity* parent_ent){
 	geo->sx=sx;
 	geo->sy=sy;
 	geo->sz=sz;
-	geo->rx=rx;
-	geo->ry=ry;
-	geo->rz=rz;
-	geo->qw=qw;
-	geo->qx=qx;
-	geo->qy=qy;
-	geo->qz=qz;
 
 	geo->name=name;
 	geo->class_name=class_name;
@@ -375,7 +368,33 @@ void Geosphere::UpdateTerrain(){
 #endif
 
 	if(ShaderMat!=NULL){
-		ShaderMat->TurnOn(mat, 0, &vertices,&brush);
+#ifndef GLES2
+		if (ShaderMat->legacy!=0) ShaderMat->vertices=&vertices;
+		if (ShaderMat->tex_coords0_loc){
+			glEnableVertexAttribArray(ShaderMat->tex_coords0_loc);
+			glVertexAttribPointer(ShaderMat->tex_coords0_loc, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), &vertices[6]);
+		}
+		if (ShaderMat->norms_loc){
+			glEnableVertexAttribArray(ShaderMat->norms_loc);
+			glVertexAttribPointer(ShaderMat->norms_loc, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), &vertices[3]);
+		}
+#else
+		glBindBuffer(GL_ARRAY_BUFFER,vbo_id);
+		glBufferData(GL_ARRAY_BUFFER,(triangleindex*3*8*sizeof(float)),&vertices[0],GL_STREAM_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+
+		if (ShaderMat->tex_coords0_loc){
+			glEnableVertexAttribArray(ShaderMat->tex_coords0_loc);
+			glVertexAttribPointer(ShaderMat->tex_coords0_loc, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (GLvoid*)(6*sizeof(float)));
+		}
+		if (ShaderMat->norms_loc){
+			glEnableVertexAttribArray(ShaderMat->norms_loc);
+			glVertexAttribPointer(ShaderMat->norms_loc, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (GLvoid*)(3*sizeof(float)));
+		}
+#endif
+
+		ShaderMat->TurnOn(mat,&brush);
 	}
 	else
 	{
@@ -697,9 +716,26 @@ void Geosphere::UpdateTerrain(){
 
 	if(ShaderMat!=NULL){
 		ShaderMat->TurnOff();
+		if (ShaderMat->tex_coords0_loc){
+			glDisableVertexAttribArray(ShaderMat->tex_coords0_loc);
+		}
+		if (ShaderMat->norms_loc){
+			glDisableVertexAttribArray(ShaderMat->norms_loc);
+		}
 	}
 #else
-	glDisableVertexAttribArray(Global::shader->vposition);
+	if(ShaderMat!=NULL){
+		ShaderMat->TurnOff();
+		if (ShaderMat->tex_coords0_loc){
+			glDisableVertexAttribArray(ShaderMat->tex_coords0_loc);
+		}
+		if (ShaderMat->norms_loc){
+			glDisableVertexAttribArray(ShaderMat->norms_loc);
+		}
+	}else{
+		glDisableVertexAttribArray(Global::shader->vposition);
+		glDisableVertexAttribArray(Global::shader->tex_coords);
+	}
 #endif
 
 
@@ -1301,7 +1337,7 @@ Geosphere* Geosphere::LoadGeosphere(string filename,Entity* parent_ent){
 
 
 	geo->UpdateNormals(true);
-	delete tmpNormals;
+	delete[] tmpNormals;
 
 	return geo;
 }

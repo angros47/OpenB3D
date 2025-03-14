@@ -352,7 +352,7 @@ Mesh* LoadOBJ(string f_name,Entity* parent_ent_ext){
 	vector<ObjTexCoord> vertexT;
 
 	string gname;
-	int snumber = -1;
+	//int snumber = -1;
 		
 	int hasNorms = 0;
 	unsigned int VC = 0;
@@ -391,7 +391,7 @@ Mesh* LoadOBJ(string f_name,Entity* parent_ent_ext){
 		} 
 		if (tag.substr(0,2)=="s "){
 			string tt=curline.substr(2);transform(tt.begin(),tt.end(),tt.begin(),::tolower);
-			if (tt != "off") snumber = atoi(tt.c_str());
+			//if (tt != "off") snumber = atoi(tt.c_str());
 			// s = smoothing groups, not supported
 			continue;
 		} 

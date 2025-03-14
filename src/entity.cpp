@@ -245,9 +245,18 @@ void Entity::MoveEntity(float mx,float my,float mz){
 	MQ_Update();
 }
 
-void Entity::TranslateEntity(float tx,float ty,float tz,int glob){
-	TFormVector(tx, ty, tz, 0, this);
-	rotmat.TransformVec(tformed_x,tformed_x,tformed_x); //transform point by internal matrix
+void Entity::TranslateEntity(float tx,float ty,float tz,int global){
+	//TFormVector(tx, ty, tz, 0, this);
+	//rotmat.TransformVec(tformed_x,tformed_x,tformed_x); //transform point by internal matrix
+	if (global==true){
+		//transform global position into parent
+		if (parent != 0){
+			TFormVector(tx, ty, tz, 0, parent);
+			tx = tformed_x;
+			ty = tformed_y;
+			tz = tformed_z;
+		}
+	}
 	px = px + tx; //add to position
 	py = py + ty;
 	pz = pz + tz;
@@ -826,7 +835,7 @@ void Entity::SetAnimKey(float frame, int pos_key, int rot_key, int scale_key){
 					bone.keys->flags[iframe] |= 4;
 					float q1_x, q1_y, q1_z, q1_w;
 					bone.rotmat.ToQuat(q1_x, q1_y, q1_z, q1_w);
-					bone.keys->qw[iframe]=-q1_w;
+					bone.keys->qw[iframe]=q1_w;
 					bone.keys->qx[iframe]=q1_x;
 					bone.keys->qy[iframe]=q1_y;
 					bone.keys->qz[iframe]=q1_z;
@@ -1008,11 +1017,11 @@ int Entity::AddAnimSeq(int length){
 }
 
 // collision
-void Entity::EntityType(int type_no,int recursive){
+void Entity::EntityType(int type_no,int flags){
 
 	// if type_no is negative, collision checking is dynamic
-	if (type_no<0){
-		type_no=-type_no;
+	if (flags&2){
+		old_mat.Overwrite(mat);
 		dynamic=true;
 	}
 
@@ -1032,11 +1041,11 @@ void Entity::EntityType(int type_no,int recursive){
 	old_y=EntityY(true);
 	old_z=EntityZ(true);
 
-	if(recursive==true){
+	if(flags&1){
 		list<Entity*>::iterator it;
 		for(it=child_list.begin();it!=child_list.end();it++){
 			Entity& ent=**it;
-			ent.EntityType(type_no,true);
+			ent.EntityType(type_no,flags);
 		}
 	}
 }
@@ -1088,7 +1097,7 @@ Entity* Entity::EntityCollided(int type_no){
 	for(it=CollisionPair::ent_lists[type_no].begin();it!=CollisionPair::ent_lists[type_no].end();it++){
 		Entity* ent=*it;
 		for(int i=1;i<=ent->CountCollisions();i++){
-			if(CollisionEntity(i)==this) return ent;
+			if(ent->CollisionEntity(i)==this) return ent;
 		}
 	}
 	return NULL;
@@ -1317,9 +1326,9 @@ float Entity::TFormedZ(){
 }
 
 // helper funcs
-void Entity::UpdateMat(bool load_identity){
+/*void Entity::UpdateMat(bool load_identity){
 	MQ_Update();
-}
+}*/
 
 void Entity::AddParent(Entity* parent_ent){
 	// self.parent = parent_ent
@@ -1415,13 +1424,12 @@ void Entity::MQ_Turn( float ang, float vx, float vy, float vz, int glob ){
 	float q1_x, q1_y, q1_z, q1_w;
 	Quaternion_FromAngleAxis( ang, vx,vy,vz, q1_x, q1_y, q1_z, q1_w ); //create quaternion
 	Matrix m;
-	m.LoadIdentity();
+	//m.LoadIdentity();
 	m.FromQuaternion(q1_x, q1_y, q1_z, q1_w); //convert to matrix
 	if (glob != 0){
 		rotmat.Multiply2(m);//apply internal matrix to new matrix
 	}else{
-		m.Multiply2(rotmat);//apply new matrix to internal matrix
-		rotmat.Overwrite(m);//'MatOverwrite(mat, m)
+		rotmat.Multiply(m);//apply new matrix to internal matrix
 	}
 }
 

@@ -90,13 +90,6 @@ VoxelSprite* VoxelSprite::CopyEntity(Entity* parent_ent){
 	voxelSprite->sx=sx;
 	voxelSprite->sy=sy;
 	voxelSprite->sz=sz;
-	voxelSprite->rx=rx;
-	voxelSprite->ry=ry;
-	voxelSprite->rz=rz;
-	voxelSprite->qw=qw;
-	voxelSprite->qx=qx;
-	voxelSprite->qy=qy;
-	voxelSprite->qz=qz;
 
 	voxelSprite->name=name;
 	voxelSprite->class_name=class_name;
@@ -229,12 +222,7 @@ VoxelSprite* VoxelSprite::CreateVoxelSprite(int slices, Entity* parent_ent){
 	entity_list.push_back(voxelSprite);
 
 	//update matrix
-	if(voxelSprite->parent!=0){
-		voxelSprite->mat.Overwrite(voxelSprite->parent->mat);
-		voxelSprite->UpdateMat();
-	}else{
-		voxelSprite->UpdateMat(true);
-	}
+	voxelSprite->MQ_Update();
 	//voxelSprite->no_surfs=-1;
 	float t,t2;
 	int i;
@@ -632,3 +620,12 @@ void VoxelSprite::Render(){
 }
 
 
+void VoxelSprite::FreeEntity(){
+
+	Entity::FreeEntity();
+	
+	delete this;
+	
+	return;
+
+}

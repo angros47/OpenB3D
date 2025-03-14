@@ -96,13 +96,6 @@ Light* Light::CopyEntity(Entity* parent_ent){
 	light->sx=sx;
 	light->sy=sy;
 	light->sz=sz;
-	light->rx=rx;
-	light->ry=ry;
-	light->rz=rz;
-	light->qw=qw;
-	light->qx=qx;
-	light->qy=qy;
-	light->qz=qz;
 
 	light->name=name;
 	light->class_name=class_name;
@@ -204,12 +197,7 @@ Light* Light::CreateLight(int l_type,Entity* parent_ent){
 	entity_list.push_back(light);
 
 	// update matrix
-	if(light->parent!=NULL){
-		light->mat.Overwrite(light->parent->mat);
-		light->UpdateMat();
-	}else{
-		light->UpdateMat(true);
-	}
+	light->MQ_Update();
 	
 	return light;
 

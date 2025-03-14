@@ -12,7 +12,7 @@
 #include "matrix.h"
 #include "maths_helper.h"
 
-void QuatToMat(float w,float x,float y,float z,Matrix& mat){
+/*void QuatToMat(float w,float x,float y,float z,Matrix& mat){
 
 	float q[4];
 	q[0]=w;
@@ -98,7 +98,7 @@ void QuatToEuler(float w,float x,float y,float z,float &pitch,float &yaw,float &
 	//(if yaw  =NAN) yaw  =0;
 	//(if roll =NAN) roll =0;
 
-}
+}*/
 
 void Slerp(float Ax,float Ay,float Az,float Aw,float Bx,float By,float Bz,float Bw,float& Cx,float& Cy,float& Cz,float& Cw,float t){
 	

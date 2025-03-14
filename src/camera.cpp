@@ -74,13 +74,6 @@ Camera* Camera::CopyEntity(Entity* parent_ent){
 	cam->sx=sx;
 	cam->sy=sy;
 	cam->sz=sz;
-	cam->rx=rx;
-	cam->ry=ry;
-	cam->rz=rz;
-	cam->qw=qw;
-	cam->qx=qx;
-	cam->qy=qy;
-	cam->qz=qz;
 
 	cam->name=name;
 	cam->class_name=class_name;
@@ -155,12 +148,7 @@ Camera* Camera::CreateCamera(Entity* parent_ent){
 	cam_list.push_back(cam); // add to cam list
 	
 	// update matrix
-	if(cam->parent){
-		cam->mat.Overwrite(cam->parent->mat);
-		cam->UpdateMat();
-	}else{
-		cam->UpdateMat(true);
-	}
+	cam->MQ_Update();
 	
 	cam->UpdateProjMatrix();
 

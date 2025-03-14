@@ -58,7 +58,7 @@ USE_INTEGER_3,
 USE_INTEGER_4,
 USE_ENTITY_MATRIX,
 USE_ENTITY_INVERSE_MATRIX,
-USE_SURFACE,
+/*USE_SURFACE,*/
 USE_MODEL_MATRIX,
 USE_VIEW_MATRIX,
 USE_PROJ_MATRIX,
@@ -237,6 +237,10 @@ Shader* Shader::CreateShaderMaterial(string Name){
 	for (int i=0; i<=254; i++){
 		s->Shader_Tex[i] = 0;
 	}
+#ifndef GLES2
+	s->legacy=1;
+#endif
+	s->tex_coords0_loc=s->tex_coords1_loc=s->norms_loc=s->cols_loc=s->cols3_loc=0;
 
 	return s;
 }
@@ -279,20 +283,9 @@ Shader* Shader::CreateShaderMaterial(string Name){
 }
 	*/
 // internal 
-void Shader::TurnOn(Matrix& mat, Surface* surf, vector<float>* vertices, Brush* brush){
+void Shader::TurnOn(Matrix& mat, Brush* brush){
 	ProgramAttriBegin();
 	// Update Data
-
-#ifdef GLES2
-	if (surf==0){
-		vector<float>&vert=*vertices;
-		if (vbo_id==0) {
-			glGenBuffers(1,&vbo_id);
-		}
-		glBindBuffer(GL_ARRAY_BUFFER,vbo_id);
-		glBufferData(GL_ARRAY_BUFFER,(vert.size()*sizeof(float)),&vert[0],GL_STREAM_DRAW);
-	}
-#endif
 
 	for (unsigned int i=0;i<Parameters.size();i++){
 		switch(Parameters[i].type){
@@ -350,7 +343,7 @@ void Shader::TurnOn(Matrix& mat, Surface* surf, vector<float>* vertices, Brush* 
 				glUniformMatrix4fv(Parameters[i].name, 1 , 0, &new_mat.grid[0][0]);
 			}
 			break;
-		case USE_SURFACE:
+/*		case USE_SURFACE:
 			if (arb_program !=0){
 				if(Parameters[i].surf!=0){
 					arb_program->SetParameterArray(Parameters[i].name,Parameters[i].surf,Parameters[i].vbo);
@@ -362,7 +355,7 @@ void Shader::TurnOn(Matrix& mat, Surface* surf, vector<float>* vertices, Brush* 
 					}
 				}
 			}
-			break;
+			break;*/
 		case USE_MODEL_MATRIX:
 			if (arb_program !=0){
 				glUniformMatrix4fv(Parameters[i].name, 1 , 0, &mat.grid[0][0]);
@@ -410,9 +403,11 @@ void Shader::TurnOn(Matrix& mat, Surface* surf, vector<float>* vertices, Brush* 
 	int tex_count=0;
 	tex_count=brush->no_texs;
 
+#ifndef GLES2
 	if (surf!=0) {
 		if(surf->brush->no_texs>tex_count) tex_count=surf->brush->no_texs;
 	}
+#endif
 
 	int DisableCubeSphereMapping=0;
 	for (int ix=0;ix<=254;ix++){
@@ -446,7 +441,9 @@ void Shader::TurnOn(Matrix& mat, Surface* surf, vector<float>* vertices, Brush* 
 			tex_v_pos=brush->tex[ix]->v_pos;
 			tex_ang=brush->tex[ix]->angle;
 			tex_cube_mode=brush->tex[ix]->cube_mode;
-		}else{
+		}
+#ifndef GLES2
+		else{
 			texture=surf->brush->cache_frame[ix];//surf.brush->tex[ix]->texture;
 			tex_flags=surf->brush->tex[ix]->flags;
 			tex_blend=surf->brush->tex[ix]->blend;
@@ -459,7 +456,7 @@ void Shader::TurnOn(Matrix& mat, Surface* surf, vector<float>* vertices, Brush* 
 			tex_cube_mode=surf->brush->tex[ix]->cube_mode;
 			//frame=surf.brush.tex_frame;
 		}
-		
+#endif		
 		
 
 											
@@ -590,51 +587,52 @@ void Shader::TurnOn(Matrix& mat, Surface* surf, vector<float>* vertices, Brush* 
 			default: glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 		}
 
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		if (legacy!=0){
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-		if (surf!=0) {
-			if (is3D==0){
+			if (surf!=0) {
+				if (is3D==0){
 
-				if(surf->vbo_enabled==true && surf->no_tris>=Global::vbo_min_tris){
-			
-					if(tex_coords==0){
-						glBindBuffer(GL_ARRAY_BUFFER,surf->vbo_id[1]);
-						glTexCoordPointer(2,GL_FLOAT,0,NULL);
+					if(surf->vbo_enabled==true && surf->no_tris>=Global::vbo_min_tris){
+				
+						if(tex_coords==0){
+							glBindBuffer(GL_ARRAY_BUFFER,surf->vbo_id[1]);
+							glTexCoordPointer(2,GL_FLOAT,0,NULL);
+						}else{
+							glBindBuffer(GL_ARRAY_BUFFER,surf->vbo_id[2]);
+							glTexCoordPointer(2,GL_FLOAT,0,NULL);
+						}
+					
 					}else{
+				
+						if(tex_coords==0){
+							//glBindBufferARB(GL_ARRAY_BUFFER_ARB,0) already reset above
+							glTexCoordPointer(2,GL_FLOAT,0,&surf->vert_tex_coords0[0]);
+						}else{
+							//glBindBufferARB(GL_ARRAY_BUFFER_ARB,0)
+							glTexCoordPointer(2,GL_FLOAT,0,&surf->vert_tex_coords1[0]);
+						}
+
+					}
+
+				}else{
+					if(surf->vbo_enabled==true && surf->no_tris>=Global::vbo_min_tris){
+				
 						glBindBuffer(GL_ARRAY_BUFFER,surf->vbo_id[2]);
-						glTexCoordPointer(2,GL_FLOAT,0,NULL);
-					}
-				
-				}else{
-			
-					if(tex_coords==0){
-						//glBindBufferARB(GL_ARRAY_BUFFER_ARB,0) already reset above
-						glTexCoordPointer(2,GL_FLOAT,0,&surf->vert_tex_coords0[0]);
+						glTexCoordPointer(3,GL_FLOAT,0,NULL);
+					
 					}else{
-						//glBindBufferARB(GL_ARRAY_BUFFER_ARB,0)
-						glTexCoordPointer(2,GL_FLOAT,0,&surf->vert_tex_coords1[0]);
-					}
-
-				}
-
-			}else{
-				if(surf->vbo_enabled==true && surf->no_tris>=Global::vbo_min_tris){
-			
-					glBindBuffer(GL_ARRAY_BUFFER,surf->vbo_id[2]);
-					glTexCoordPointer(3,GL_FLOAT,0,NULL);
 				
-				}else{
-			
-					//glBindBufferARB(GL_ARRAY_BUFFER_ARB,0)
-					glTexCoordPointer(3,GL_FLOAT,0,&surf->vert_tex_coords1[0]);
+						//glBindBufferARB(GL_ARRAY_BUFFER_ARB,0)
+						glTexCoordPointer(3,GL_FLOAT,0,&surf->vert_tex_coords1[0]);
 
+					}
 				}
+			}else{
+				vector<float>&Vertices=*vertices;
+				glTexCoordPointer(2, GL_FLOAT, 8*sizeof(float), &Vertices[6]);
 			}
-		}else{
-			vector<float>&Vertices=*vertices;
-			glTexCoordPointer(2, GL_FLOAT, 8*sizeof(float), &Vertices[6]);
 		}
-
 							
 		// reset texture matrix
 		glMatrixMode(GL_TEXTURE);
@@ -728,16 +726,19 @@ void Shader::TurnOff(){
 			
 	}
 	No_samplers=0;
+
+	vertices=0;
+	surf=0;
 #endif
 	for (unsigned int i=0;i<Parameters.size();i++){
 		switch(Parameters[i].type){
-		case USE_SURFACE:
+		/*case USE_SURFACE:
 			if (arb_program !=0){	
 				//int loc= glGetAttribLocation(arb_program->Program, Parameters[i].name.c_str());
 				//glDisableVertexAttribArray(loc);
 				glDisableVertexAttribArray(Parameters[i].name);
 			}
-			break;
+			break;*/
 		case USE_FUNCTION:
 			if (Parameters[i].Disable!=0){
 				Parameters[i].Disable();
@@ -1085,14 +1086,40 @@ void Shader::UseInteger4(string name, int* v1, int* v2, int* v3, int* v4){
 
 
 
-void Shader::UseSurface(string name, Surface* surf, int vbo){
-	ShaderData data;
+void Shader::UseSurface(string name, Surface* surf1, int vbo){
+	if (vbo==1) {
+		glBindAttribLocation(arb_program->Program, 0,name.c_str());
+		Link();
+	}
+	if (vbo==2) {
+		tex_coords0_loc=glGetAttribLocation(arb_program->Program, name.c_str());
+	}
+	if (vbo==3) {
+		tex_coords1_loc=glGetAttribLocation(arb_program->Program, name.c_str());
+	}
+	if (vbo==4) {
+		norms_loc=glGetAttribLocation(arb_program->Program, name.c_str());
+	}
+	if (vbo==5) {
+		cols_loc=glGetAttribLocation(arb_program->Program, name.c_str());
+	}
+	if (vbo==6) {
+		cols3_loc=glGetAttribLocation(arb_program->Program, name.c_str());
+	}
+#ifndef GLES2
+	legacy=0;
+	surf=0;
+#endif
+	return;
+}
+
+/*	ShaderData data;
 	data.name=glGetAttribLocation(arb_program->Program, name.c_str());
 	data.type=USE_SURFACE;
 	data.surf=surf;
 	data.vbo=vbo;
 	Parameters.push_back(data);
-}
+}*/
 
 void Shader::UseMatrix(string name, int mode){
 	ShaderData data;
@@ -1320,7 +1347,7 @@ void ProgramObject::SetParameter4D(string name, double v1, double v2, double v3,
 //-------------------------------------------------------------------------------------
 // Array Parameter
 
-void ProgramObject::SetParameterArray(int name, Surface* surf, int vbo){
+/*void ProgramObject::SetParameterArray(int name, Surface* surf, int vbo){
 	int loc= name;
 
 	if(surf->vbo_enabled!=0){
@@ -1424,7 +1451,7 @@ void ProgramObject::SetParameterArray(int name, vector<float>* verticesPtr, int 
 	glEnableVertexAttribArray(loc);
 	return;
 #endif
-}
+}*/
 
 
 //-------------------------------------------------------------------------------------
@@ -1601,17 +1628,35 @@ Material* Material::LoadMaterial(string filename,int flags, int frame_width,int 
 	tex->texture=name;
 	tex->width=frame_width;
 	tex->height=frame_height;
-	delete dstbuffer;
+	delete[] dstbuffer;
 #else
 	glGenTextures (1,&name);
 	glBindTexture (GL_TEXTURE_2D,name);
+	int v=tex->width;
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->width, tex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+	//highest power of 2
+	v--;
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v++;
+
+	unsigned char* dstbuffer=new unsigned char[v*tex->height*4];
+
+	unsigned int y;
+	for (y = 0; y < tex->height; y++)
+	  memcpy (dstbuffer + y * v * 4, buffer + y * tex->width * 4, tex->width * 4);
+
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, v, tex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dstbuffer);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	tex->texture=name;
-	tex->no_frames=tex->width/frame_width;
+	tex->no_frames=v/frame_width;
 	tex->width=frame_width;
 	tex->height=frame_height;
+	delete[] dstbuffer;
 #endif
 	stbi_image_free(buffer);
 

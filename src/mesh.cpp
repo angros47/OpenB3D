@@ -109,13 +109,6 @@ Mesh* Mesh::CopyEntity(Entity* parent_ent){
 	mesh->sx=sx;
 	mesh->sy=sy;
 	mesh->sz=sz;
-	mesh->rx=rx;
-	mesh->ry=ry;
-	mesh->rz=rz;
-	mesh->qw=qw;
-	mesh->qx=qx;
-	mesh->qy=qy;
-	mesh->qz=qz;
 
 	mesh->name=name;
 	mesh->class_name=class_name;
@@ -292,12 +285,7 @@ Mesh* Mesh::CreateMesh(Entity* parent_ent){
 	entity_list.push_back(mesh);
 
 	//update matrix
-	if(mesh->parent!=0){
-		mesh->mat.Overwrite(mesh->parent->mat);
-		mesh->UpdateMat();
-	}else{
-		mesh->UpdateMat(true);
-	}
+	mesh->MQ_Update();
 
 	return mesh;
 
@@ -400,12 +388,7 @@ Mesh* Mesh::LoadMesh(string filename,Entity* parent_ent){
 	entity_list.push_back(mesh);
 
 	//update matrix
-	if(mesh->parent!=0){
-		mesh->mat.Overwrite(mesh->parent->mat);
-		mesh->UpdateMat();
-	}else{
-		mesh->UpdateMat(true);
-	}
+	mesh->MQ_Update();
 
 	return mesh;
 
@@ -2536,7 +2519,67 @@ void Mesh::Render(){
 #endif
 
 		if(surf.ShaderMat!=NULL){
-			surf.ShaderMat->TurnOn(mat, &surf,0, &brush);
+#ifndef GLES2
+			if (surf.ShaderMat->legacy!=0) surf.ShaderMat->surf=&surf;
+			if (vbo){
+#endif
+				if (surf.ShaderMat->tex_coords0_loc){
+					glEnableVertexAttribArray(surf.ShaderMat->tex_coords0_loc);
+					glBindBuffer(GL_ARRAY_BUFFER,surf.vbo_id[1]);
+					glVertexAttribPointer(surf.ShaderMat->tex_coords0_loc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+				}
+				if (surf.ShaderMat->tex_coords1_loc){
+					glEnableVertexAttribArray(surf.ShaderMat->tex_coords1_loc);
+					glBindBuffer(GL_ARRAY_BUFFER,surf.vbo_id[2]);
+					glVertexAttribPointer(surf.ShaderMat->tex_coords1_loc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+				}
+				if (surf.ShaderMat->norms_loc){
+					glEnableVertexAttribArray(surf.ShaderMat->norms_loc);
+					glBindBuffer(GL_ARRAY_BUFFER,surf.vbo_id[3]);
+					glVertexAttribPointer(surf.ShaderMat->norms_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+				}
+				if (surf.ShaderMat->cols_loc){
+					glEnableVertexAttribArray(surf.ShaderMat->cols_loc);
+					glBindBuffer(GL_ARRAY_BUFFER,surf.vbo_id[4]);
+					glVertexAttribPointer(surf.ShaderMat->cols_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+				}
+				if (surf.ShaderMat->cols3_loc){
+					glEnableVertexAttribArray(surf.ShaderMat->cols_loc);
+					glBindBuffer(GL_ARRAY_BUFFER,surf.vbo_id[4]);
+					glVertexAttribPointer(surf.ShaderMat->cols3_loc, 4, GL_FLOAT, GL_FALSE, 0, 0);
+				}
+#ifndef GLES2
+			}else{
+				if (surf.ShaderMat->tex_coords0_loc){
+					glEnableVertexAttribArray(surf.ShaderMat->tex_coords0_loc);
+					glVertexAttribPointer(surf.ShaderMat->tex_coords0_loc, 2, GL_FLOAT, GL_FALSE, 0, &surf.vert_tex_coords0[0]);
+				}
+				if (surf.ShaderMat->tex_coords1_loc){
+					glEnableVertexAttribArray(surf.ShaderMat->tex_coords1_loc);
+					glVertexAttribPointer(surf.ShaderMat->tex_coords1_loc, 2, GL_FLOAT, GL_FALSE, 0, &surf.vert_tex_coords1[0]);
+				}
+				if (surf.ShaderMat->norms_loc){
+					glEnableVertexAttribArray(surf.ShaderMat->norms_loc);
+					glVertexAttribPointer(surf.ShaderMat->norms_loc, 3, GL_FLOAT, GL_FALSE, 0, &surf.vert_norm[0]);
+				}
+				if (surf.ShaderMat->cols_loc){
+					glEnableVertexAttribArray(surf.ShaderMat->cols_loc);
+					glVertexAttribPointer(surf.ShaderMat->cols_loc, 3, GL_FLOAT, GL_FALSE, 0, &surf.vert_col[0]);
+				}
+				if (surf.ShaderMat->cols3_loc){
+					glEnableVertexAttribArray(surf.ShaderMat->cols_loc);
+					glVertexAttribPointer(surf.ShaderMat->cols3_loc, 4, GL_FLOAT, GL_FALSE, 0, &surf.vert_col[0]);
+				}
+			}
+			Brush* surf_brush=&brush;
+#else
+			Brush* surf_brush=&brush;
+			tex_count=brush.no_texs;
+			if(surf.brush->no_texs>tex_count) surf_brush=surf.brush;
+			glEnableVertexAttribArray(Global::shader->vposition);
+#endif
+
+			surf.ShaderMat->TurnOn(mat, surf_brush);
 		}
 		else
 		{
@@ -2921,10 +2964,41 @@ void Mesh::Render(){
 
 		if(surf.ShaderMat!=NULL){
 			surf.ShaderMat->TurnOff();
+			if (surf.ShaderMat->tex_coords0_loc){
+				glDisableVertexAttribArray(surf.ShaderMat->tex_coords0_loc);
+			}
+			if (surf.ShaderMat->tex_coords1_loc){
+				glDisableVertexAttribArray(surf.ShaderMat->tex_coords1_loc);
+			}
+			if (surf.ShaderMat->norms_loc){
+				glDisableVertexAttribArray(surf.ShaderMat->norms_loc);
+			}
+			if (surf.ShaderMat->cols_loc){
+				glDisableVertexAttribArray(surf.ShaderMat->cols_loc);
+			}
+			if (surf.ShaderMat->cols3_loc){
+				glDisableVertexAttribArray(surf.ShaderMat->cols_loc);
+			}
+
 		}
 #else
 		if(surf.ShaderMat!=NULL){
 			surf.ShaderMat->TurnOff();
+			if (surf.ShaderMat->tex_coords0_loc){
+				glDisableVertexAttribArray(surf.ShaderMat->tex_coords0_loc);
+			}
+			if (surf.ShaderMat->tex_coords1_loc){
+				glDisableVertexAttribArray(surf.ShaderMat->tex_coords1_loc);
+			}
+			if (surf.ShaderMat->norms_loc){
+				glDisableVertexAttribArray(surf.ShaderMat->norms_loc);
+			}
+			if (surf.ShaderMat->cols_loc){
+				glDisableVertexAttribArray(surf.ShaderMat->cols_loc);
+			}
+			if (surf.ShaderMat->cols3_loc){
+				glDisableVertexAttribArray(surf.ShaderMat->cols_loc);
+			}
 		}else{
 			glDisableVertexAttribArray(Global::shader->vposition);
 			glDisableVertexAttribArray(Global::shader->tex_coords);

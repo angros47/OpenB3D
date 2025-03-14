@@ -43,7 +43,7 @@ public:
 
 
 	void OctreeMesh(Mesh* mesh, int level, float X, float Y, float Z, float Near=0.0, float Far=1000.0);
-	void OctreeBlock(Mesh* mesh, int level, float X, float Y, float Z, float Near=0.0, float Far=1000.0);
+	void OctreeBlock(Mesh* mesh, int level, float X, float Y, float Z, float Near=0.0, float Far=1000.0, int solid=1);
 	void TreeCheck(CollisionInfo* ci);
 	void UpdateTerrain();
 

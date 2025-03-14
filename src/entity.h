@@ -42,8 +42,6 @@ public:
 	Matrix rotmat;
 	float px,py,pz;
 	float sx,sy,sz;
-	float rx,ry,rz;
-	float qw,qx,qy,qz;
 
 	// material
 	Brush brush;
@@ -114,8 +112,6 @@ public:
 		rotmat.LoadIdentity();
 		px=0.0,py=0.0,pz=0.0;
 		sx=1.0,sy=1.0,sz=1.0;
-		rx=0.0,ry=0.0,rz=0.0;
-		qw=1.0,qx=0.0,qy=0.0,qz=0.0;
 		
 		// material
 		//brush=NULL;
@@ -229,7 +225,7 @@ public:
 	void SetAnimKey(float frame, int pos_key=true, int rot_key=true, int scale_key=true);
 	int AddAnimSeq(int length);
 	// collisions
-	void EntityType(int type_no,int recursive=false);
+	void EntityType(int type_no,int flags=0);
 	int GetEntityType();
 	void EntityRadius(float rx,float ry=0.0);
 	void EntityBox(float x,float y,float z,float w,float h,float d);
@@ -261,7 +257,7 @@ public:
 	static float TFormedY();
 	static float TFormedZ();
 	// helper funcs
-	void UpdateMat(bool load_identity=false);
+	//void UpdateMat(bool load_identity=false);
 	void AddParent(Entity* parent_ent);
 	static void UpdateChildren(Entity* ent_p);	
 	float EntityDistanceSquared(Entity* ent2);	

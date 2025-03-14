@@ -416,6 +416,9 @@ Mesh* CopyMesh(Mesh* mesh,Entity* parent){
 	return mesh->CopyMesh(parent);
 }
 
+int CountBones(Mesh* mesh){
+	return mesh->bones.size();
+}
 /*
 bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=CountSurfaces">Online Help</a>
 */
@@ -901,6 +904,10 @@ void GeosphereHeight(Geosphere* geo, float h){
 	geo->vsize=h;
 }
 
+Bone* GetBone(Mesh* mesh,int id){
+	return mesh->bones[id-1];
+}
+
 /*
 bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=GetBrushTexture">Online Help</a>
 */
@@ -1113,6 +1120,10 @@ void ModifyTerrain(Terrain* terr, int x, int z, float new_height){
 	terr->ModifyTerrain ( x,  z, new_height);
 }
 
+int MoveBone(Bone* bone,float x,float y,float z, int segments=32){
+	return bone->MoveBone(x,y,z, segments);
+}
+
 /*
 bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=MoveEntity">Online Help</a>
 */
@@ -1252,6 +1263,10 @@ void PointEntity(Entity* ent,Entity* target_ent,float roll){
 	ent->PointEntity(target_ent,roll);
 }
 
+void PositionBone(Bone* bone,float x,float y,float z){
+	bone->PositionBone(x,y,z);
+}
+
 /*
 bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=PositionEntity">Online Help</a>
 */
@@ -1319,6 +1334,9 @@ void ResetShadow(ShadowObject* shad){
 	shad->VCreated=0;
 }
 
+void RotateBone(Bone* bone,float pitch,float yaw,float roll){
+	bone->RotateBone(pitch,yaw,roll);
+}
 
 /*
 bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=RotateEntity">Online Help</a>
@@ -1840,7 +1858,9 @@ Shader* LoadShader(char* ShaderName, char* VshaderFileName, char* FshaderFileNam
 	//int Vert, Frag;
 	s->AddShader(VshaderFileName, GL_VERTEX_SHADER);
 	s->AddShader(FshaderFileName, GL_FRAGMENT_SHADER);
+#ifndef GLES2
 	s->Link();
+#endif
 	return s;
 }
 
@@ -1849,7 +1869,9 @@ Shader* CreateShader(char* ShaderName, char* VshaderString, char* FshaderString)
 	//int Vert, Frag;
 	s->AddShaderFromString(VshaderString, GL_VERTEX_SHADER);
 	s->AddShaderFromString(FshaderString, GL_FRAGMENT_SHADER);
+#ifndef GLES2
 	s->Link();
+#endif
 	return s;
 }
 
@@ -2011,8 +2033,8 @@ OcTree* CreateOcTree(float w, float h, float d, Entity* parent_ent=0){
 	return OcTree::CreateOcTree(w, h, d, parent_ent);
 }
 
-void OctreeBlock(OcTree* octree, Mesh* mesh, int level, float X, float Y, float Z, float Near=0.0, float Far=1000.0){
-	octree->OctreeBlock(mesh, level, X, Y, Z, Near, Far);
+void OctreeBlock(OcTree* octree, Mesh* mesh, int level, float X, float Y, float Z, float Near=0.0, float Far=1000.0, int solid=1){
+	octree->OctreeBlock(mesh, level, X, Y, Z, Near, Far, solid);
 }
 
 void OctreeMesh(OcTree* octree, Mesh* mesh, int level, float X, float Y, float Z, float Near=0.0, float Far=1000.0){
@@ -2025,6 +2047,16 @@ Fluid* CreateFluid(){
 
 ParticleEmitter* CreateParticleEmitter(Entity* particle, Entity* parent_ent=0){
 	return ParticleEmitter::CreateParticleEmitter(particle, parent_ent);
+}
+
+Action* ActStop(Action* act2){
+	Action* act1= Action::AddAction(0, ACT_STOP, 0, 0, 0, 0, 0);
+	act1->TargetAction=act2;
+	return act1;
+}
+
+Action* ActWait(float rate){
+	return Action::AddAction(0, ACT_WAIT, 0, 0, 0, 0, rate);
 }
 
 Action* ActMoveBy(Entity* ent, float a, float b, float c, float rate){
@@ -2071,12 +2103,34 @@ Action* ActNewtonian(Entity* ent, float rate){
 	return Action::AddAction(ent, ACT_NEWTONIAN, ent->mat.grid[3][0], ent->mat.grid[3][1], -ent->mat.grid[3][2], rate);
 }
 
+Action* ActExecute(void (*func)(void)){
+	Action* a=Action::AddAction(0, ACT_CALLFUNCTION, 0,0,0,0);
+	a->Execute=func;
+	return a;
+}
+
+Action* TriggerCloseTo(Entity* ent, float a, float b, float c, float rate){
+	return Action::AddAction(ent, TRIGGER_CLOSETO, a, b, c, rate);
+}
+
+Action* TriggerDistance(Entity* ent, float rate){
+	return Action::AddAction(ent, TRIGGER_ENTITYDISTANCE, 0, 0, 0, rate);
+}
+
+Action* TriggerCollision(Entity* ent, int type){
+	return Action::AddAction(ent, TRIGGER_COLLISION, 0, 0, 0, (float)type);
+}
+
+Action* ActIterator(){
+	return Action::AddAction(0, ACT_ITERATE, 0, 0, 0, 0);
+}
+
 void AppendAction(Action* act1, Action* act2){
 	act1->AppendAction(act2);
 }
 
-void FreeAction(Action* act){
-	act->FreeAction();
+void FreeAction(Action* act, int global=0){
+	act->FreeAction(global);
 }
 
 void DepthBufferToTex( Texture* tex, Camera* cam=0 ){

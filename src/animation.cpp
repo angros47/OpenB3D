@@ -189,9 +189,9 @@ void Animation::AnimateMesh(Mesh* ent1,float framef,int start_frame,int end_fram
 		float pz3=0;
 
 		if(no_keys==true){ // no keyframes
-		  px3=bent.n_px;
-			py3=bent.n_py;
-			pz3=bent.n_pz;
+			px3=bent.px;//n_px;
+			py3=bent.py;//n_py;
+			pz3=-bent.pz;//n_pz;
 		} else {
   		if(fd1+fd2==0.0){ // one keyframe
 				// if only one keyframe, fd1+fd2 will equal 0 resulting in division error and garbage positional values (which can affect children)
@@ -207,10 +207,11 @@ void Animation::AnimateMesh(Mesh* ent1,float framef,int start_frame,int end_fram
 		}
 		no_keys=false;
 
-		// store current keyframe for use with transitions
+/*		// store current keyframe for use with transitions
 		bent.kx=px3;
 		bent.ky=py3;
 		bent.kz=pz3;
+*/
 
 		// rotation
 		i=frame+1;
@@ -267,10 +268,13 @@ void Animation::AnimateMesh(Mesh* ent1,float framef,int start_frame,int end_fram
 		float y3=0.0;
 		float z3=0.0;
 		if(no_keys==true){ // no keyframes
-			w3=bent.n_qw;
-			x3=bent.n_qx;
-			y3=bent.n_qy;
-			z3=bent.n_qz;
+			/*w3=bent.qw;
+			x3=bent.qx;
+			y3=bent.qy;
+			z3=bent.qz;*/
+			// store current keyframe for use with transitions
+			bent.rotmat.ToQuat(bent.qx, bent.qy, bent.qz, bent.qw);
+			//bent.qw=-bent.qw;
 		}else{
 			if(fd1+fd2==0.0){ // one keyframe
 				// if only one keyframe, fd1+fd2 will equal 0 resulting in division error and garbage rotational values (which can affect children)
@@ -283,16 +287,18 @@ void Animation::AnimateMesh(Mesh* ent1,float framef,int start_frame,int end_fram
 				float t=(1.0/(fd1+fd2))*fd1;
 				Slerp(x1,y1,z1,w1,x2,y2,z2,w2,x3,y3,z3,w3,t); // interpolate between prev and next rotations
 			}
+
+			// store current keyframe for use with transitions
+			bent.qw=w3;
+			bent.qx=x3;
+			bent.qy=y3;
+			bent.qz=z3;
+
+			//QuatToMat(w3,x3,y3,z3,bent.rotmat);
+			bent.rotmat.FromQuaternion(x3,y3,z3, w3);
 		}
 		no_keys=false;
 
-		// store current keyframe for use with transitions
-		bent.kqw=w3;
-		bent.kqx=x3;
-		bent.kqy=y3;
-		bent.kqz=z3;
-
-		QuatToMat(w3,x3,y3,z3,bent.rotmat);
 
 		/*bent.mat.grid[3][0]=px3;
 		bent.mat.grid[3][1]=py3;
@@ -330,10 +336,11 @@ void Animation::AnimateMesh(Mesh* ent1,float framef,int start_frame,int end_fram
 		// set mat2 - does not include root parent transformation
 		// mat2 is used to store local bone positions, and is needed for vertex deform
 		if(dynamic_cast<Bone*>(bent.parent)!=NULL){
-			Matrix new_mat;
+			/*Matrix new_mat;
 			new_mat.Overwrite(dynamic_cast<Bone*>(bent.parent)->mat2);
 			new_mat.Multiply(bent.mat2);
-			bent.mat2.Overwrite(new_mat);
+			bent.mat2.Overwrite(new_mat);*/
+			bent.mat2.Multiply2(dynamic_cast<Bone*>(bent.parent)->mat2);
 		}
 
 		// set tform mat
@@ -413,260 +420,206 @@ void Animation::AnimateMesh2(Mesh* ent1,float framef,int start_frame,int end_fra
 
 	}
 
-		ent1->anim_render=true;
+	ent1->anim_render=true;
 
-		//int frame=framef; // float to int
+	//int frame=framef; // float to int
 
-		vector<Bone*>::iterator it;
+	vector<Bone*>::iterator it;
 
-		for(it=ent1->bones.begin();it!=ent1->bones.end();it++){
+	for(it=ent1->bones.begin();it!=ent1->bones.end();it++){
 
-			Bone& bent=**it;
+		Bone& bent=**it;
 
-			int i=0;
-			int ii=0;
-			float fd1=framef; // fd1 always between 0 and 1 for this function
-			float fd2=1.0-fd1; // fd1+fd2 always equals 0 for this function
-			int found=false;
-			int no_keys=false;
-			float w1=0.0;
+		int i=0;
+		int ii=0;
+		float fd1=framef; // fd1 always between 0 and 1 for this function
+		float fd2=1.0-fd1; // fd1+fd2 always equals 0 for this function
+		int found=false;
+		int no_keys=false;
+		float w1=0.0;
 
-			// get current keyframe
-			float x1=bent.kx;
-			float y1=bent.ky;
-			float z1=bent.kz;
+		// get current keyframe
+		float x1=bent.px;
+		float y1=bent.py;
+		float z1=-bent.pz;
 
-			float w2=0.0;
-			float x2=0.0;
-			float y2=0.0;
-			float z2=0.0;
+		float w2=0.0;
+		float x2=0.0;
+		float y2=0.0;
+		float z2=0.0;
 
-			int flag=0;
+		int flag=0;
 
-			// position
+		// position
 
-			// forwards
-			//i=frame
-			i=start_frame-1;
-			do{
-				i=i+1;
-				if(i>end_frame){
-					i=start_frame;
-					ii=ii+1;
-				}
-				flag=bent.keys->flags[i]&1;
-				if(flag){
-					x2=bent.keys->px[i];
-					y2=bent.keys->py[i];
-					z2=bent.keys->pz[i];
-					//fd2=i-framef
-					found=true;
-				}
-			}while(found==true && ii<2);
-			if(found==false) no_keys=true;
-			found=false;
-			ii=0;
-
-			float px3=0.0;
-			float py3=0.0;
-			float pz3=0.0;
-			if(no_keys==true){ // no keyframes
-				px3=bent.n_px;
-				py3=bent.n_py;
-				pz3=bent.n_pz;
-			}else{
-				if(fd1+fd2==0.0){ // one keyframe
-					// if only one keyframe, fd1+fd2 will equal 0 resulting in division error and garbage positional values (which can affect children)
-					// so we check for this, and if true then positional values equals x1,y1,z1 (same as x2,y2,z2)
-					px3=x1;
-					py3=y1;
-					pz3=z1;
-				}else{ // more than one keyframe
-					px3=(((x2-x1)/(fd1+fd2))*fd1)+x1;
-					py3=(((y2-y1)/(fd1+fd2))*fd1)+y1;
-					pz3=(((z2-z1)/(fd1+fd2))*fd1)+z1;
-				}
+		// forwards
+		//i=frame
+		i=start_frame-1;
+		do{
+			i=i+1;
+			if(i>end_frame){
+				i=start_frame;
+				ii=ii+1;
 			}
-			no_keys=false;
-
-			// get current keyframe
-			w1=bent.kqw;
-			x1=bent.kqx;
-			y1=bent.kqy;
-			z1=bent.kqz;
-
-			// rotation
-
-			// forwards
-			//i=frame
-			i=start_frame-1;
-			do{
-				i=i+1;
-				if(i>end_frame){
-					i=start_frame;
-					ii=ii+1;
-				}
-				flag=bent.keys->flags[i]&4;
-				if(flag){
-					w2=bent.keys->qw[i];
-					x2=bent.keys->qx[i];
-					y2=bent.keys->qy[i];
-					z2=bent.keys->qz[i];
-					//fd2=i-framef
-					found=true;
-				}
-			}while(found==true && ii<2);
-			if(found==false) no_keys=true;
-			found=false;
-			ii=0;
-
-			// interpolate keys
-
-			float w3=0.0;
-			float x3=0.0;
-			float y3=0.0;
-			float z3=0.0;
-			if(no_keys==true){ // no keyframes
-				w3=bent.n_qw;
-				x3=bent.n_qx;
-				y3=bent.n_qy;
-				z3=bent.n_qz;
-			}else{
-				if(fd1+fd2==0.0){ // one keyframe
-					// if only one keyframe, fd1+fd2 will equal 0 resulting in division error and garbage rotational values (which can affect children)
-					// so we check for this, and if true then rotational values equals w1,x1,y1,z1 (same as w2,x2,y2,z2)
-					w3=w1;
-					x3=x1;
-					y3=y1;
-					z3=z1;
-				}else{ // more than one keyframe
-					float t=(1.0/(fd1+fd2))*fd1;
-					Slerp(x1,y1,z1,w1,x2,y2,z2,w2,x3,y3,z3,w3,t); // interpolate between prev and next rotations
-				}
+			flag=bent.keys->flags[i]&1;
+			if(flag){
+				x2=bent.keys->px[i];
+				y2=bent.keys->py[i];
+				z2=bent.keys->pz[i];
+				//fd2=i-framef
+				found=true;
 			}
-			no_keys=false;
+		}while(found==true && ii<2);
+		if(found==false) no_keys=true;
+		found=false;
+		ii=0;
 
-			QuatToMat(w3,x3,y3,z3,bent.rotmat);
-
-			/*bent.mat.grid[3][0]=px3;
-			bent.mat.grid[3][1]=py3;
-			bent.mat.grid[3][2]=pz3;
-
-			// store local position/rotation values. will be needed to maintain bone positions when positionentity etc is called
-			float pitch=0;
-			float yaw=0;
-			float roll=0;
-			QuatToEuler(w3,x3,y3,z3,pitch,yaw,roll);
-			bent.rx=-pitch;
-			bent.ry=yaw;
-			bent.rz=roll;*/
-
-			bent.px=px3;
-			bent.py=py3;
-			bent.pz=-pz3;
-
-			// set mat2 to equal mat
-			bent.mat2.Overwrite(bent.rotmat);
-			bent.mat2.grid[3][0]=px3;
-			bent.mat2.grid[3][1]=py3;
-			bent.mat2.grid[3][2]=pz3;
-
-			// set mat - includes root parent transformation
-			// mat is used for store global bone positions, needed when displaying actual bone positions and attaching entities to bones
-			/*if(bent.parent!=NULL){
-				Matrix* new_mat=bent.parent->mat.Copy();
-				new_mat->Multiply(bent.mat);
-				bent.mat.Overwrite(*new_mat);
-				delete new_mat;
-			}*/
-
-			// set mat2 - does not include root parent transformation
-			// mat2 is used to store local bone positions, and is needed for vertex deform
-			if(dynamic_cast<Bone*>(bent.parent)!=NULL){
-				Matrix new_mat;
-				new_mat.Overwrite(dynamic_cast<Bone*>(bent.parent)->mat2);
-				new_mat.Multiply(bent.mat2);
-				bent.mat2.Overwrite(new_mat);
+		float px3=0.0;
+		float py3=0.0;
+		float pz3=0.0;
+		if(no_keys==true){ // no keyframes
+			px3=bent.px;
+			py3=bent.py;
+			pz3=-bent.pz;
+		}else{
+			if(fd1+fd2==0.0){ // one keyframe
+				// if only one keyframe, fd1+fd2 will equal 0 resulting in division error and garbage positional values (which can affect children)
+				// so we check for this, and if true then positional values equals x1,y1,z1 (same as x2,y2,z2)
+				px3=x1;
+				py3=y1;
+				pz3=z1;
+			}else{ // more than one keyframe
+				px3=(((x2-x1)/(fd1+fd2))*fd1)+x1;
+				py3=(((y2-y1)/(fd1+fd2))*fd1)+y1;
+				pz3=(((z2-z1)/(fd1+fd2))*fd1)+z1;
 			}
+		}
+		no_keys=false;
 
-			// set tform mat
-			// A tform mat is needed to transform vertices, and is basically the bone mat multiplied by the inverse reference pose mat
-			bent.tform_mat.Overwrite(bent.mat2);
-			bent.tform_mat.Multiply(bent.inv_mat);
+		// get current keyframe
+		w1=bent.qw;
+		x1=bent.qx;
+		y1=bent.qy;
+		z1=bent.qz;
 
-			// update bone children
-			//if(bent.child_list.size()!=0) Entity::UpdateChildren(&bent);
-			//bent.MQ_Update();
+		// rotation
 
+		// forwards
+		//i=frame
+		i=start_frame-1;
+		do{
+			i=i+1;
+			if(i>end_frame){
+				i=start_frame;
+				ii=ii+1;
+			}
+			flag=bent.keys->flags[i]&4;
+			if(flag){
+				w2=bent.keys->qw[i];
+				x2=bent.keys->qx[i];
+				y2=bent.keys->qy[i];
+				z2=bent.keys->qz[i];
+				//fd2=i-framef
+				found=true;
+			}
+		}while(found==true && ii<2);
+		if(found==false) no_keys=true;
+		found=false;
+		ii=0;
+
+		// interpolate keys
+
+		float w3=0.0;
+		float x3=0.0;
+		float y3=0.0;
+		float z3=0.0;
+		if(no_keys==true){ // no keyframes
+			w3=bent.qw;
+			x3=bent.qx;
+			y3=bent.qy;
+			z3=bent.qz;
+			/*bent.rotmat.ToQuat(x3, y3, z3, w3);
+			w3=-w3;*/
+		}else{
+			if(fd1+fd2==0.0){ // one keyframe
+				// if only one keyframe, fd1+fd2 will equal 0 resulting in division error and garbage rotational values (which can affect children)
+				// so we check for this, and if true then rotational values equals w1,x1,y1,z1 (same as w2,x2,y2,z2)
+				w3=w1;
+				x3=x1;
+				y3=y1;
+				z3=z1;
+			}else{ // more than one keyframe
+				float t=(1.0/(fd1+fd2))*fd1;
+				Slerp(x1,y1,z1,w1,x2,y2,z2,w2,x3,y3,z3,w3,t); // interpolate between prev and next rotations
+			}
+		}
+		no_keys=false;
+
+		//QuatToMat(w3,x3,y3,z3,bent.rotmat);
+		bent.rotmat.FromQuaternion(x3,y3,z3, w3);
+
+		/*bent.mat.grid[3][0]=px3;
+		bent.mat.grid[3][1]=py3;
+		bent.mat.grid[3][2]=pz3;
+
+		// store local position/rotation values. will be needed to maintain bone positions when positionentity etc is called
+		float pitch=0;
+		float yaw=0;
+		float roll=0;
+		QuatToEuler(w3,x3,y3,z3,pitch,yaw,roll);
+		bent.rx=-pitch;
+		bent.ry=yaw;
+		bent.rz=roll;*/
+
+		bent.px=px3;
+		bent.py=py3;
+		bent.pz=-pz3;
+
+		// set mat2 to equal mat
+		bent.mat2.Overwrite(bent.rotmat);
+		bent.mat2.grid[3][0]=px3;
+		bent.mat2.grid[3][1]=py3;
+		bent.mat2.grid[3][2]=pz3;
+
+		// set mat - includes root parent transformation
+		// mat is used for store global bone positions, needed when displaying actual bone positions and attaching entities to bones
+		/*if(bent.parent!=NULL){
+			Matrix* new_mat=bent.parent->mat.Copy();
+			new_mat->Multiply(bent.mat);
+			bent.mat.Overwrite(*new_mat);
+			delete new_mat;
+		}*/
+
+		// set mat2 - does not include root parent transformation
+		// mat2 is used to store local bone positions, and is needed for vertex deform
+		if(dynamic_cast<Bone*>(bent.parent)!=NULL){
+			/*Matrix new_mat;
+			new_mat.Overwrite(dynamic_cast<Bone*>(bent.parent)->mat2);
+			new_mat.Multiply(bent.mat2);
+			bent.mat2.Overwrite(new_mat);*/
+			bent.mat2.Multiply2(dynamic_cast<Bone*>(bent.parent)->mat2);
 		}
 
-		ent1->MQ_Update();
+		// set tform mat
+		// A tform mat is needed to transform vertices, and is basically the bone mat multiplied by the inverse reference pose mat
+		bent.tform_mat.Overwrite(bent.mat2);
+		bent.tform_mat.Multiply(bent.inv_mat);
 
-		// --- vertex deform ---
-		VertexDeform(ent1);
+		// update bone children
+		//if(bent.child_list.size()!=0) Entity::UpdateChildren(&bent);
+		//bent.MQ_Update();
+
+	}
+
+	ent1->MQ_Update();
+
+	// --- vertex deform ---
+	VertexDeform(ent1);
 
 	//}
 
 }
 
-void Animation::AnimateMesh3(Mesh* ent1){
-	if(ent1->anim!=1) return; // mesh contains no anim data
-
-		ent1->anim_render=true;
-
-		//int frame=framef; // float to int
-
-		vector<Bone*>::iterator it;
-
-		for(it=ent1->bones.begin();it!=ent1->bones.end();it++){
-
-			Bone& bent=**it;
-
-			// set mat2 to equal mat
-			bent.mat2.Overwrite(bent.rotmat);
-
-			bent.mat2.grid[3][0]=bent.px;
-			bent.mat2.grid[3][1]=bent.py;
-			bent.mat2.grid[3][2]=-bent.pz;
-
-			// store current keyframe for use with transitions
-
-			bent.rotmat.ToQuat(bent.kqx, bent.kqy, bent.kqz, bent.kqw);
-			bent.kqw=-bent.kqw;
-
-			bent.kx=bent.px;
-			bent.ky=bent.py;
-			bent.kz=-bent.pz;
-
-
-
-
-			// mat2 is used to store local bone positions, and is needed for vertex deform
-			if(dynamic_cast<Bone*>(bent.parent)!=NULL){
-				Matrix new_mat;
-				new_mat.Overwrite(dynamic_cast<Bone*>(bent.parent)->mat2);
-				new_mat.Multiply(bent.mat2);
-				bent.mat2.Overwrite(new_mat);
-			}
-
-
-			// set tform mat
-			// A tform mat is needed to transform vertices, and is basically the bone mat multiplied by the inverse reference pose mat
-			bent.tform_mat.Overwrite(bent.mat2);
-
-			bent.tform_mat.Multiply(bent.inv_mat);
-
-
-		}
-
-		ent1->MQ_Update();
-
-		// --- vertex deform ---
-		VertexDeform(ent1);
-
-	//}
-
-}
 
 void Animation::VertexDeform(Mesh* ent){
 

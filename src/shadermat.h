@@ -74,14 +74,28 @@ class Shader {//: public MaterialPlugin{
 	
 	// internal 
 public:
+	int tex_coords0_loc;
+	int tex_coords1_loc;
+	int norms_loc;
+	int cols_loc;
+	int cols3_loc;
+#ifndef GLES2
+	unsigned int legacy;
+	union{
+		Surface* surf;
+		vector<float>* vertices;
+	};
+#endif
+
 	static list<Shader*> shader_list;
 
 	static Shader* CreateShaderMaterial(string Name = "");
-	void TurnOn(Matrix& mat, Surface* surf, vector<float>* vertices=0, Brush* brush=0);
+	void TurnOn(Matrix& mat, Brush* brush=0);
 	void TurnOff();
 	int AddShader(string _vert, int type);
 	int AddShaderFromString(string _shader, int type);
 	void Link();
+
 	void AddSampler(string Name, int Slot, Texture* Tex, int is3D);
 	void ProgramAttriBegin();
 	void ProgramAttriEnd();

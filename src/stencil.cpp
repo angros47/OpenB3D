@@ -209,7 +209,7 @@ void Stencil::UseStencil(){
 
 		glPopMatrix();
 		// NOTE: is it the projektion matrix ?
-		glMatrixMode(GL_MODELVIEW);
+		glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 #else
 	Global::shader=&Global::shader_stencil;
@@ -228,6 +228,7 @@ void Stencil::UseStencil(){
 	glEnableVertexAttribArray(Global::shader->vposition);
  
 	glDrawArrays(GL_TRIANGLE_FAN,0,4);
+	glEnable(GL_DEPTH_TEST);
 
 #endif
 	if (cls_color==0) {

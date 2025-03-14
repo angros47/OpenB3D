@@ -16,6 +16,23 @@ void Action::Update(){
 			it=action_list.erase(it);
 			delete act;
 			break;}
+		case ACT_DESTROY:{
+			//Destroy an action and all the actions after it
+			list<Action*>::iterator it2;
+			for(it2=act->nextActions.begin();it2!=act->nextActions.end();it2++){
+				(*it2)->act=ACT_DESTROY;
+			}
+			act->act=ACT_COMPLETED;
+			break;}
+		case ACT_STOP:	{
+			act->TargetAction->act=ACT_DESTROY;
+			act->act=ACT_COMPLETED;
+			break;}
+		case ACT_WAIT:	{
+			act->rate-=1.0;
+			if (act->rate<1.0)
+				act->act=ACT_COMPLETED;
+			break;}
 		case ACT_MOVEBY:	{
 			//MoveBy
 			float n=sqrt(act->a*act->a+act->b*act->b+act->c*act->c);
@@ -198,6 +215,59 @@ void Action::Update(){
 			act->ent->TranslateEntity(dx*act->rate,dy*act->rate,dz*act->rate,true);
 
 			break;}
+		case ACT_CALLFUNCTION:{
+			act->Execute();
+			act->act=ACT_COMPLETED;
+			break;}
+		case ACT_ITERATE:{
+			list<Action*>::iterator it2;
+			Action* o=0;
+			for(it2=act->nextActions.begin();it2!=act->nextActions.end();it2++){
+				Action* n=new Action;
+				n->ent=(*it2)->ent;
+				n->act=(*it2)->act;
+				n->target=(*it2)->target;
+				n->a=(*it2)->a;
+				n->b=(*it2)->b;
+				n->c=(*it2)->c;
+				n->rate=(*it2)->rate;
+				if (o==0){
+					action_list.push_back(n);
+				}else{
+					o->nextActions.push_back(n);
+				}
+				o=n;
+			}
+			if (o==0){
+				act->act=ACT_COMPLETED;
+			}else{
+				o->nextActions.push_back(act);
+				it=action_list.erase(it);
+			}
+
+
+			break;}
+		case TRIGGER_CLOSETO:	{
+			//MoveTo
+			float dx=act->a-act->ent->EntityX(true);
+			float dy=act->b-act->ent->EntityY(true);
+			float dz=act->c-act->ent->EntityZ(true);
+
+			float n=sqrt(dx*dx+dy*dy+dz*dz);
+			if (n<act->rate)
+				act->act=ACT_COMPLETED;
+			break;}
+		case TRIGGER_ENTITYDISTANCE:{
+			//TrackByDistance
+			float d=act->ent->EntityDistance(act->target);
+
+			if (d<act->rate) 
+				act->act=ACT_COMPLETED;
+			break;}
+		case TRIGGER_COLLISION:{
+			if (act->ent->EntityCollided((int)act->rate)!=0)
+				act->act=ACT_COMPLETED;
+			break;}
 		}
 	}
 }
@@ -222,8 +292,11 @@ void Action::AppendAction(Action* a){
 	nextActions.push_back(a);
 }
 
-void Action::FreeAction(){
+void Action::FreeAction(int glob){
 	//The action will be removed at the first update; it cannot be erased immediately, because other actions might point at it
-	act=ACT_COMPLETED;
+	if (glob==0){
+		act=ACT_COMPLETED;
+	}else{
+		act=ACT_DESTROY;}
 }
 

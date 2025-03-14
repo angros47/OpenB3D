@@ -1,7 +1,7 @@
 CCMPILER = emcc
-CC=emcc -Wall -O3 
+CC=emcc -fPIC -Wall -O3 
 
-OBJECTS = model.o string_helper.o surface.o bank.o bone.o brush.o collision.o entity.o functions.o geom.o global.o light.o matrix.o pick.o pivot.o project.o sprite.o tilt.o touch.o texture_filter.o tree.o animation.o animation_keys.o collision2.o maths_helper.o quaternion.o sprite_batch.o camera.o file.o mesh.o texture.o terrain.o stb_image.o 3ds.o collidetri.o shadow.o material.o stencil.o csg.o voxel.o x.o octree.o geosphere.o md2.o isosurface.o particle.o physics.o actions.o postfx.o obj.o shaders.o
+OBJECTS = model.o string_helper.o surface.o bone.o brush.o collision.o entity.o functions.o geom.o global.o light.o matrix.o pick.o pivot.o project.o sprite.o texture_filter.o tree.o animation.o animation_keys.o collision2.o maths_helper.o quaternion.o sprite_batch.o camera.o file.o mesh.o texture.o terrain.o stb_image.o 3ds.o collidetri.o shadow.o material.o stencil.o csg.o voxel.o x.o octree.o geosphere.o md2.o isosurface.o particle.o physics.o actions.o postfx.o obj.o shaders.o
 
 main:$(OBJECTS) 
 	$(CC) -shared -o OpenB3D.o $(OBJECTS)  
@@ -16,9 +16,6 @@ md2.o  : md2.cpp md2.h
 
 actions.o  : actions.cpp actions.h
 	$(CC) -c actions.cpp -o actions.o
-
-bank.o : bank.cpp bank.h
-	$(CC) -c bank.cpp -o bank.o
 
 bone.o : bone.cpp bone.h
 	$(CC) -c bone.cpp -o bone.o
@@ -82,12 +79,6 @@ terrain.o : terrain.cpp terrain.h stb_image.c
 
 texture.o : texture.cpp texture.h stb_image.c
 	$(CC) -c texture.cpp -o texture.o
-
-tilt.o : tilt.cpp tilt.h
-	$(CC) -c tilt.cpp -o tilt.o
-
-touch.o : touch.cpp touch.h
-	$(CC) -c touch.cpp -o touch.o
 
 string_helper.o : string_helper.cpp string_helper.h
 	$(CC) -c string_helper.cpp -o string_helper.o

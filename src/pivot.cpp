@@ -55,13 +55,6 @@ Pivot* Pivot::CopyEntity(Entity* parent_ent){
 	piv->sx=sx;
 	piv->sy=sy;
 	piv->sz=sz;
-	piv->rx=rx;
-	piv->ry=ry;
-	piv->rz=rz;
-	piv->qw=qw;
-	piv->qx=qx;
-	piv->qy=qy;
-	piv->qz=qz;
 
 	piv->name=name;
 	piv->class_name=class_name;
@@ -104,12 +97,7 @@ Pivot* Pivot::CreatePivot(Entity* parent_ent){
 	entity_list.push_back(piv);
 
 	// update matrix
-	if(piv->parent!=NULL){
-		piv->mat.Overwrite(piv->parent->mat);
-		piv->UpdateMat();
-	}else{
-		piv->UpdateMat(true);
-	}
+	piv->MQ_Update();
 	
 	return piv;
 

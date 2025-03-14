@@ -480,7 +480,7 @@ void Global::ClearWorld(int entities,int brushes,int textures){
 
 		for(list<Action*>::iterator it=Action::action_list.begin();it!=Action::action_list.end();it++){
 			Action* act=*it;
-			act->act=ACT_COMPLETED;
+			act->act=ACT_DESTROY;
 		}
 
 		while (!PostFX::fx_list.empty()) {
@@ -576,6 +576,10 @@ void Global::UpdateEntityAnim(Mesh& mesh){
 		int last=mesh.anim_seqs_last[mesh.anim_seq];
 		int anim_start=false;
 
+		if(mesh.anim_mode==4){
+			first=last=mesh.anim_time=mesh.anim_seqs_last[0];
+		}
+
 		if(mesh.anim_trans>0){
 			mesh.anim_trans=mesh.anim_trans-1;
 			if(mesh.anim_trans==1) anim_start=true;
@@ -592,10 +596,6 @@ void Global::UpdateEntityAnim(Mesh& mesh){
 			if(anim_start==true) mesh.anim_time=first;
 
 		}else{
-			if(mesh.anim_mode==4){	//Manual mode
-				Animation::AnimateMesh3(&mesh);
-				return;
-			}
 
 			Animation::AnimateMesh(&mesh,mesh.anim_time,first,last);
 

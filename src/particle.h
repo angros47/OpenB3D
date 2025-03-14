@@ -70,6 +70,9 @@ public:
 		particle_batch->brush.blend=blend;
 		particle_batch->order=order;
 		particle_batch_list.push_back(particle_batch);
+#ifdef GLES2
+		surf->UpdateVBO();
+#endif
 		return particle_batch;
 		
 	}

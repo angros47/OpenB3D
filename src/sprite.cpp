@@ -61,13 +61,6 @@ Sprite* Sprite::CopyEntity(Entity* parent_ent){
 	sprite->sx=sx;
 	sprite->sy=sy;
 	sprite->sz=sz;
-	sprite->rx=rx;
-	sprite->ry=ry;
-	sprite->rz=rz;
-	sprite->qw=qw;
-	sprite->qx=qx;
-	sprite->qy=qy;
-	sprite->qz=qz;
 
 	sprite->name=name;
 	sprite->class_name=class_name;
@@ -128,12 +121,7 @@ Sprite* Sprite::CreateSprite(Entity* parent_ent){
 	Entity::entity_list.push_back(sprite);
 
 	// update matrix
-	if(sprite->parent!=NULL){
-		sprite->mat.Overwrite(sprite->parent->mat);
-		sprite->UpdateMat();
-	}else{
-		sprite->UpdateMat(true);
-	}
+	sprite->MQ_Update();
 
 	if (surf==0){
 		surf=new Surface();
