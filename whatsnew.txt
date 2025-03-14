@@ -20,6 +20,9 @@ Fixed
 -TranslateEntity ignored the global parameter
 -in .b3d files bone weights weren't normalized, and that caused issues with models exported by Blender, that appeared deformed
 -it is now possible to manually animate a mesh by rotating or moving its bones even during regular animations, for bones that don't have keyframes in that specific sequence
+-in WebGL mode now it's possible to have more than one shadow per entity if there is more than one light
+-in WebGL mode voxel sprites work even if the texture strip has a width that is not a power of two
+-EntityCollided now reports both active and passive collisions
 
 V1.3
 Added
