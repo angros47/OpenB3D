@@ -49,6 +49,7 @@ void ShadowObject::FreeShadow() {
 	}
 	if (shadow_list.size()==0) Global::Shadows_enabled=0;
 
+	delete this;
 }
 
 void ShadowObject::SetShadowColor(int R, int G, int B, int A){
@@ -82,7 +83,7 @@ ShadowObject* ShadowObject::Create(Mesh* Parent, char Static){
 		return S;
 }
 
-void ShadowObject::RemoveShadowfromMesh(Mesh* M) {
+/*void ShadowObject::RemoveShadowfromMesh(Mesh* M) {
 	list<ShadowObject*>::iterator it;
 	for(it=shadow_list.begin();it!=shadow_list.end();it++){
 		ShadowObject* S=*it;
@@ -91,7 +92,7 @@ void ShadowObject::RemoveShadowfromMesh(Mesh* M) {
 			return;
 		}
 	}
-}
+}*/
 
 void ShadowObject::Update(Camera* Cam){
 	//RenderedVolumes = 0;

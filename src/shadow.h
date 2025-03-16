@@ -82,7 +82,7 @@ public:
 	static ShadowObject* Create(Mesh* Parent, char Static = false);
 	void SetShadowColor(int R = 0,int G = 0, int B = 0, int A = 0.5);
 	static void ShadowInit();
-	void RemoveShadowfromMesh(Mesh* M);
+	//void RemoveShadowfromMesh(Mesh* M);
 	static void Update(Camera* Cam);
 	static void RenderVolume();
 	void UpdateAnim();

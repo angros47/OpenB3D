@@ -443,11 +443,15 @@ void Global::ClearWorld(int entities,int brushes,int textures){
 			it=Entity::entity_list.begin();
 			it--;
 		}*/
+		while (!ShadowObject::shadow_list.empty()) {
+			ShadowObject* s=*ShadowObject::shadow_list.begin();
+			s->FreeShadow();
+		}
+
 		while (!Entity::entity_list.empty()) {
 			Entity* e=*Entity::entity_list.begin();
 			e->FreeEntity();
 		}
-
 
 		Entity::animate_list.clear();
 		Camera::cam_list.clear();

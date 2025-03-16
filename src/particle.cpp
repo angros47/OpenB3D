@@ -416,7 +416,7 @@ void ParticleEmitter::FreeEntity (){
 
 	Entity::FreeEntity();
 	delete this;
-return;
+
 	return;
 }
 
