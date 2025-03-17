@@ -23,6 +23,7 @@ Fixed
 -in WebGL mode now it's possible to have more than one shadow per entity if there is more than one light
 -in WebGL mode voxel sprites work even if the texture strip has a width that is not a power of two
 -EntityCollided now reports both active and passive collisions
+-ClearWorld didn't erase the shadows, now it does
 
 V1.3
 Added
