@@ -770,8 +770,8 @@ void EntityTexture(Entity* ent,Texture* tex,int frame,int index){
 /*
 bbdoc: <a href="http://www.blitzbasic.com/b3ddocs/command.php?name=EntityType">Online Help</a>
 */
-void EntityType(Entity* ent,int type_no,bool recursive){
-	ent->EntityType(type_no,recursive);
+void EntityType(Entity* ent,int type_no, int flags){
+	ent->EntityType(type_no,flags);
 }
 
 /*
@@ -1120,7 +1120,7 @@ void ModifyTerrain(Terrain* terr, int x, int z, float new_height){
 	terr->ModifyTerrain ( x,  z, new_height);
 }
 
-int MoveBone(Bone* bone,float x,float y,float z, int segments=32){
+int MoveBone(Bone* bone,float x,float y,float z, int segments=2){
 	return bone->MoveBone(x,y,z, segments);
 }
 
