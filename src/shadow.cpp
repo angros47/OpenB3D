@@ -571,7 +571,7 @@ void ShadowObject::ShadowRenderWorldZFail(){
 	glDisable(GL_DEPTH_TEST);
 
 	glVertexAttribPointer(Global::shader->vposition, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glUniform4f(Global::shader->color,ShadowRed,ShadowGreen,ShadowBlue,.5);
+	glUniform4f(Global::shader->lightColor,ShadowRed,ShadowGreen,ShadowBlue,.5);
 	glEnableVertexAttribArray(Global::shader->vposition);
  
 	glDrawArrays(GL_TRIANGLE_FAN,0,4);

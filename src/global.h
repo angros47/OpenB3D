@@ -34,11 +34,13 @@ public:
 		//static GLuint ambient_current_program;
 		GLuint ambient_program;
 
-		GLuint vposition;
-		GLuint vnormal;
-		GLuint tex_coords;
-		GLuint tex_coords2;
-		GLuint color;
+		enum{
+			vposition=0,
+			vnormal=1,
+			tex_coords=2,
+			tex_coords2=3,
+			color=4};
+
 		GLuint shininess;
 
 		GLuint model;

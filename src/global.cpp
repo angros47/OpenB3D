@@ -158,11 +158,11 @@ void Global::Graphics(){
 				glAttachShader(shader->ambient_program, ambient_frag[t][f]);
 
 				glBindAttribLocation(shader->ambient_program, 0, "aVertexPosition");
-				shader->vposition=0; glBindAttribLocation(shader->ambient_program, 0, "aVertexPosition");
-				shader->vnormal=1; glBindAttribLocation(shader->ambient_program, 1, "aVertexNormal");
-				shader->tex_coords=2;glBindAttribLocation(shader->ambient_program, 2, "aTextureCoord");
-				shader->tex_coords2=3;glBindAttribLocation(shader->ambient_program, 3, "aTextureCoord2");
-				shader->color=4;glBindAttribLocation(shader->ambient_program, 4, "aVertexColor");
+				glBindAttribLocation(shader->ambient_program, 0, "aVertexPosition");
+				glBindAttribLocation(shader->ambient_program, 1, "aVertexNormal");
+				glBindAttribLocation(shader->ambient_program, 2, "aTextureCoord");
+				glBindAttribLocation(shader->ambient_program, 3, "aTextureCoord2");
+				glBindAttribLocation(shader->ambient_program, 4, "aVertexColor");
 
 				glLinkProgram(shader->ambient_program);
 				glValidateProgram(shader->ambient_program);
@@ -249,8 +249,8 @@ void Global::Graphics(){
 	glAttachShader(shader_particle.ambient_program, v);
 	glAttachShader(shader_particle.ambient_program, f);
 
-	shader_particle.vposition=0; glBindAttribLocation(shader_particle.ambient_program, 0, "aVertexPosition");
-	shader_particle.color=1; glBindAttribLocation(shader_particle.ambient_program, 1, "aVertexColor");
+	glBindAttribLocation(shader_particle.ambient_program, 0, "aVertexPosition");
+	glBindAttribLocation(shader_particle.ambient_program, 1, "aVertexColor");
 
 	glLinkProgram(shader_particle.ambient_program);
 	glValidateProgram(shader_particle.ambient_program);
@@ -286,8 +286,8 @@ void Global::Graphics(){
 	glAttachShader(shader_voxel.ambient_program, v);
 	glAttachShader(shader_voxel.ambient_program, f);
 
-	shader_voxel.vposition=0; glBindAttribLocation(shader_voxel.ambient_program, 0, "aVertexPosition");
-	shader_voxel.vnormal=1; glBindAttribLocation(shader_voxel.ambient_program, 1, "aVertexNormal");
+	glBindAttribLocation(shader_voxel.ambient_program, 0, "aVertexPosition");
+	glBindAttribLocation(shader_voxel.ambient_program, 1, "aVertexNormal");
 
 	glLinkProgram(shader_voxel.ambient_program);
 	glValidateProgram(shader_voxel.ambient_program);
@@ -324,7 +324,7 @@ void Global::Graphics(){
 	glAttachShader(shader_stencil.ambient_program, v);
 	glAttachShader(shader_stencil.ambient_program, f);
 
-	shader_stencil.vposition=0;glBindAttribLocation(shader_stencil.ambient_program, 0, "aVertexPosition");
+	glBindAttribLocation(shader_stencil.ambient_program, 0, "aVertexPosition");
 
 	glLinkProgram(shader_stencil.ambient_program);
 	glValidateProgram(shader_stencil.ambient_program);
@@ -334,7 +334,7 @@ void Global::Graphics(){
 
 	glGetProgramiv(shader_stencil.ambient_program,GL_LINK_STATUS, &linked);
 
-	shader_stencil.color=glGetUniformLocation(shader_stencil.ambient_program, "uColor");
+	shader_stencil.lightColor=glGetUniformLocation(shader_stencil.ambient_program, "uColor");
 
 
 	glGenBuffers(1, &stencil_vbo);

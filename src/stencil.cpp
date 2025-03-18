@@ -224,7 +224,7 @@ void Stencil::UseStencil(){
 	glDisable(GL_DEPTH_TEST);
 
 	glVertexAttribPointer(Global::shader->vposition, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glUniform4f(Global::shader->color,cls_r,cls_g,cls_b,alpha);
+	glUniform4f(Global::shader->lightColor,cls_r,cls_g,cls_b,alpha);
 	glEnableVertexAttribArray(Global::shader->vposition);
  
 	glDrawArrays(GL_TRIANGLE_FAN,0,4);

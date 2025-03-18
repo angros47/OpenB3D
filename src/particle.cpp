@@ -177,8 +177,10 @@ void ParticleBatch::Render(){
 
 		glBindBuffer(GL_ARRAY_BUFFER,surf->vbo_id[4]);
 		glBufferData(GL_ARRAY_BUFFER,(surf->no_verts*4*sizeof(float)),&surf->vert_col[0],GL_STREAM_DRAW);
-		glVertexAttribPointer(Global::shader->color, 4, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(Global::shader->color);
+		/*glVertexAttribPointer(Global::shader->color, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(Global::shader->color);*/
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
 		glUniform1i(Global::shader->texflag, brush.tex[0]->flags&4);
 	}
 
