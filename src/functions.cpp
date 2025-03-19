@@ -2113,8 +2113,8 @@ Action* TriggerCloseTo(Entity* ent, float a, float b, float c, float rate){
 	return Action::AddAction(ent, TRIGGER_CLOSETO, a, b, c, rate);
 }
 
-Action* TriggerDistance(Entity* ent, float rate){
-	return Action::AddAction(ent, TRIGGER_ENTITYDISTANCE, 0, 0, 0, rate);
+Action* TriggerDistance(Entity* ent, Entity* target, float rate){
+	return Action::AddAction(ent, TRIGGER_ENTITYDISTANCE, target, rate);
 }
 
 Action* TriggerCollision(Entity* ent, int type){
