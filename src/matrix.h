@@ -499,6 +499,71 @@ public:
 
 	}
 
+	void ToRotMat() {
+		// Step 1: Normalize the first column vector
+		float length = sqrt(grid[0][0]*grid[0][0]+grid[0][1]*grid[0][1]+grid[0][2]*grid[0][2]);
+		grid[0][0]=grid[0][0]/length;
+		grid[0][1]=grid[0][1]/length;
+		grid[0][2]=grid[0][2]/length;
+
+		// Step 2: Orthogonalize the second column vector with respect to the first
+		float projection[3];
+		float dot_product=grid[1][0]*grid[0][0]+grid[1][1]*grid[0][1]+grid[1][2]*grid[0][2];
+		projection[0]=dot_product * grid[0][0];
+		projection[1]=dot_product * grid[0][1];
+		projection[2]=dot_product * grid[0][2];
+
+		grid[1][0]=grid[1][0]-projection[0];
+		grid[1][1]=grid[1][1]-projection[1];
+		grid[1][2]=grid[1][2]-projection[2];
+
+		//normalize(grid[1]);
+		length = sqrt(grid[1][0]*grid[1][0]+grid[1][1]*grid[1][1]+grid[1][2]*grid[1][2]);
+		grid[1][0]=grid[1][0]/length;
+		grid[1][1]=grid[1][1]/length;
+		grid[1][2]=grid[1][2]/length;
+
+		// Step 3: Orthogonalize the third column vector with respect to the first and second
+		dot_product=grid[2][0]*grid[0][0]+grid[2][1]*grid[0][1]+grid[2][2]*grid[0][2];
+		projection[0] = dot_product * grid[0][0];
+		projection[1] = dot_product * grid[0][1];
+		projection[2] = dot_product * grid[0][2];
+
+		grid[2][0]=grid[2][0]-projection[0];
+		grid[2][1]=grid[2][1]-projection[1];
+		grid[2][2]=grid[2][2]-projection[2];
+
+		dot_product=grid[2][0]*grid[1][0]+grid[2][1]*grid[1][1]+grid[2][2]*grid[1][2];
+		projection[0] = dot_product * grid[1][0];
+		projection[1] = dot_product * grid[1][1];
+		projection[2] = dot_product * grid[1][2];
+
+		grid[2][0]=grid[2][0]-projection[0];
+		grid[2][1]=grid[2][1]-projection[1];
+		grid[2][2]=grid[2][2]-projection[2];
+
+		//normalize(grid[2]);
+		length = sqrt(grid[2][0]*grid[2][0]+grid[2][1]*grid[2][1]+grid[2][2]*grid[2][2]);
+		grid[2][0]=grid[2][0]/length;
+		grid[2][1]=grid[2][1]/length;
+		grid[2][2]=grid[2][2]/length;
+
+
+		//remove translation
+		grid[3][0] = 0;
+		grid[3][1] = 0;
+		grid[3][2] = 0;
+
+		// The right column vector of the matrix should always be [ 0 0 0 1 ]
+		// in most cases. . . you don't need this column at all because it'll
+		// never be used in the program, but since this code is used with GL
+		// and it does consider this column, it is here.
+		grid[0][3] = 0;
+		grid[1][3] = 0;
+		grid[2][3] = 0;
+		grid[3][3] = 1;
+	}
+
 	void FromToRotation(float ix, float iy, float iz, float jx, float jy, float jz){
 
 		float hvx, hvz, hvxy, hvxz, hvyz;
