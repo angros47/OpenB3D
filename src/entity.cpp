@@ -69,9 +69,7 @@ void Entity::EntityParent(Entity* parent_ent,int glob){
 		orgy = tformed_y;
 		orgz = tformed_z;
 		MQ_GetMatrix(m1);
-		m1.grid[3][0] = 0; //remove translation
-		m1.grid[3][1] = 0;
-		m1.grid[3][2] = 0;
+		m1.ToRotMat();
 		//get scaling
 		MQ_GetScaleXYZ(orgw,orgh,orgd);
 	}
@@ -103,9 +101,7 @@ void Entity::EntityParent(Entity* parent_ent,int glob){
 			m2.LoadIdentity(); //no parent
 		}else{
 			parent_ent->MQ_GetInvMatrix(m2);
-			m2.grid[3][0] = 0; //remove translation
-			m2.grid[3][1] = 0;
-			m2.grid[3][2] = 0;
+			m2.ToRotMat();
 		}
 		//apply rotation matrix
 		m1.Multiply2(m2);
@@ -292,10 +288,8 @@ void Entity::RotateEntity(float x,float y,float z,int global){
 		if (parent != 0) {
 			Matrix m2;
 			parent->MQ_GetInvMatrix(m2);
-			m2.grid[3][0] = 0; //remove translation
-			m2.grid[3][1] = 0;
-			m2.grid[3][2] = 0;
-			m2.Scale(parent->EntityScaleX(true), parent->EntityScaleY(true), parent->EntityScaleZ(true));
+			m2.ToRotMat();
+
 			//apply rotation matrix
 			rotmat.Multiply2(m2);
 		}
@@ -573,7 +567,7 @@ void Entity::EntityTexture(Texture* texture,int frame,int index,int recursive){
 	if(index+1>brush.no_texs)
 	  brush.no_texs=index+1;
 
-	if (texture->no_frames>2){
+	if (frame!=0 && texture->no_frames>2){
 		if(frame<0) frame=0;
 		if(frame>texture->no_frames-1) frame=texture->no_frames-1;
 		brush.cache_frame[index]=texture->frames[frame];

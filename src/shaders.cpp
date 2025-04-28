@@ -248,7 +248,7 @@ const char *GLES2_Shader::vert_particle=
 "  varying lowp vec4 vColor;\r\n"
 "  void main(void) {"
 "    highp vec4 position=uVMatrix * vec4(aVertexPosition, 1.0);"
-"    gl_PointSize = - 1000.0/position.z;"
+"    gl_PointSize =  1000.0/dot(position.xyz ,position.xyz);"
 "    gl_Position = uPMatrix * position;"
 "    vColor = aVertexColor;"
 

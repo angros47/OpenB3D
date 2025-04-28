@@ -41,7 +41,7 @@
 #include "string_helper.h"
 #include "csg.h"
 #include "3ds.h"
-#include "x.h"
+#include "gltf.h"
 #include "md2.h"
 #include "obj.h"
 
@@ -397,7 +397,8 @@ Mesh* Mesh::LoadMesh(string filename,Entity* parent_ent){
 Mesh* Mesh::LoadAnimMesh(string filename,Entity* parent_ent){
 
 	if(Right(filename,4)==".3ds") return load3ds::Load3ds(filename, parent_ent);//filename=Replace(filename,".3ds",".b3d");
-	if(Right(filename,2)==".x") return loadX::LoadX(filename, parent_ent);
+	//if(Right(filename,2)==".x") return loadX::LoadX(filename, parent_ent);
+	if(Right(filename,5)==".gltf"||Right(filename,4)==".glb") return loadGLtf::LoadGLtf(filename, parent_ent);
 	if(Right(filename,4)==".md2") return loadMD2::LoadMD2(filename, parent_ent);//filename=Replace(filename,".3ds",".b3d");
 	if(Right(filename,4)==".obj") return LoadOBJ::LoadOBJ(filename, parent_ent);
 

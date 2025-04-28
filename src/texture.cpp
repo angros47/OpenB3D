@@ -249,6 +249,7 @@ Texture* Texture::LoadAnimTexture(string filename,int flags, int frame_width,int
 Texture* Texture::CreateTexture(int width,int height,int flags, int frames){
 
 	Texture* tex=new Texture();
+	tex_list.push_back(tex);
 
 	tex->flags=flags;
 	tex->FilterFlags();

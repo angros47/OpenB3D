@@ -155,13 +155,15 @@ int Bone::MoveBone(float x,float y,float z, int segments){
 				if(dynamic_cast<Bone*>(seg->parent)!=NULL){
 					s2=dynamic_cast<Bone*>(seg->parent);
 					s2->mat2.GetInverse(m0);
-					m0.grid[3][0] = 0; //remove translation
+					m0.ToRotMat();
+					/*m0.grid[3][0] = 0; //remove translation
 					m0.grid[3][1] = 0;
-					m0.grid[3][2] = 0;
+					m0.grid[3][2] = 0;*/
 					m1.Overwrite(s2->mat2);
-					m1.grid[3][0] = 0; //remove translation
+					m1.ToRotMat();
+					/*m1.grid[3][0] = 0; //remove translation
 					m1.grid[3][1] = 0;
-					m1.grid[3][2] = 0;
+					m1.grid[3][2] = 0;*/
 				}else{
 					s2=seg;
 					m0.LoadIdentity();
