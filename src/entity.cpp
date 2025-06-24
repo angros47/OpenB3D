@@ -745,7 +745,7 @@ int Entity::ExtractAnimSeq(int first_frame,int last_frame,int seq){
 
 int Entity::LoadAnimSeq(string filename){
 	// mesh that we will load anim seq from
-	Mesh* mesh=LoadAnimB3D(filename);
+	Mesh* mesh=Mesh::LoadAnimMesh(filename);
 	if (anim==false || mesh->anim==false){	//' mesh or self contains no anim data
 		mesh->FreeEntity();
 		return 0; 
