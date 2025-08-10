@@ -1,3 +1,15 @@
+v1.42
+Added
+-Support for .gltf and .glb format
+
+Fixed
+-some glitches with EntityParent
+-MoveBone caused unwanted deformations when used for more than two joints
+-particle size in Web version
+
+Removed
+-Support for .x files: it was only partial, since it supported only an old version, only in text form, and with no animations. 
+
 v1.4
 Added
 -support for .obj format
