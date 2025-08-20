@@ -4,7 +4,7 @@
 #endif
 
 #include <iostream>
-#include <string>
+#include <string.h>
 
 #ifdef linux
 #define GL_GLEXT_PROTOTYPES
