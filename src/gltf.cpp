@@ -395,7 +395,7 @@ Mesh* LoadGLtf(string filename, Entity* parent_ent){
 	if (root==NULL) root=Mesh::CreateMesh(parent_ent);
 
 	//for (cgltf_size i0 = 0; i0 < data->skins_count; ++i0) {
-	if (data->skins_count==1){
+	if (data->skins_count>0){
 		cgltf_skin* skin = &data->skins[0];
 		//vector<Bone*> s_bone(skin->joints_count);
 		for (cgltf_size i = 0; i < skin->joints_count; ++i) {
