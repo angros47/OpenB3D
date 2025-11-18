@@ -152,6 +152,7 @@ Geosphere* Geosphere::CopyEntity(Entity* parent_ent){
 Geosphere* Geosphere::CreateGeosphere(int tsize, Entity* parent_ent){
 
 	Geosphere* geo=new Geosphere;
+	geo->class_name="Geosphere";
 
 	for (int i = 0; i<= ROAM_LMAX; i++){
 		geo->level2dzsize[i] = 0;

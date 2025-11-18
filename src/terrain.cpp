@@ -157,6 +157,7 @@ Terrain* Terrain::CopyEntity(Entity* parent_ent){
 Terrain* Terrain::CreateTerrain(int tsize, Entity* parent_ent){
 
 	Terrain* terr=new Terrain;
+	terr->class_name="Terrain";
 
 	for (int i = 0; i<= ROAM_LMAX; i++){
 		terr->level2dzsize[i] = 0;

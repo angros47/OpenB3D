@@ -330,8 +330,6 @@ ParticleEmitter* ParticleEmitter::CopyEntity(Entity* parent_ent){
 		ent->CopyEntity(emitter);
 	}
 
-	emitter->class_name="Emitter";
-		
 	emitter->AddParent(parent_ent);
 	entity_list.push_back(emitter);
 

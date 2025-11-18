@@ -208,6 +208,7 @@ void OcTree::OctreeBlock(Mesh* mesh, int level, float X, float Y, float Z, float
 OcTree* OcTree::CreateOcTree(float w, float h, float d, Entity* parent_ent){
 
 	OcTree* oct=new OcTree;
+	oct->class_name="OcTree";
 
 	oct->AddParent(parent_ent);
 	mesh_info=C_NewMeshInfo();
