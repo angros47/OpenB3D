@@ -1,4 +1,4 @@
-OpenB3d 1.4 Guide
+OpenB3d 1.42 Guide
 
 (<https://sourceforge.net/projects/minib3d/files/>)
 
@@ -2927,15 +2927,15 @@ Returns the first entity between x,y,z to x+dx,y+dy,z+dz.
 **Mesh\*** <a id="LoadAnimMesh">**LoadAnimMesh(char\*
 file,Entity\* parent)**
 
-LoadAnimMesh, similar to LoadMesh, Loads a mesh from an .X, .3DS, MD2 or
-.B3D file and returns a mesh handle.\
+LoadAnimMesh, similar to LoadMesh, Loads a mesh from an .gltf/.glb, .3DS, MD2,
+ .OBJ or .B3D file and returns a mesh handle.\
 \
 The difference between [LoadMesh](#LoadMesh) and LoadAnimMesh is that
 any hierarchy and animation information present in the file is retained.
 You can then either activate the animation by using the Animate command
 or find child entities within the hierarchy by using the FindChild(),
-GetChild() functions. Animation is available only in .B3D and .MD2
-files, not in .3DS or .X\
+GetChild() functions. Animation is available only in .gltf/.glb, .B3D 
+and .MD2 files, not in .3DS or .OBJ\
 \
 The optional parent parameter allows you to specify a parent entity for
 the mesh so that when the parent is moved the child mesh will move with
@@ -3097,8 +3097,8 @@ individual animation frames.
 **Mesh\*** <a id="LoadMesh">**LoadMesh(char\*
 file,Entity\* parent)**
 
-LoadMesh, as the name suggests, Loads a mesh from an .X, .3DS or .B3D
-file (Usually created in advance by one of a number of 3D model creation
+LoadMesh, as the name suggests, Loads a mesh from an .gltf/.glb, .3DS, .OBJ or 
+.B3D file (Usually created in advance by one of a number of 3D model creation
 packages) and returns the mesh handle.\
 \
 Any hierarchy and animation information in the file will be ignored. Use
