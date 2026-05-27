@@ -1323,77 +1323,47 @@ void Mesh::PaintMesh(Brush* bru){
 
 }
 
-void Mesh::MeshColor(float r,float g,float b,float a){
+void Mesh::LightMesh(float r, float g, float b, float range, float x, float y, float z){
+	if( range ){
+		float att=1.0f/range;
+		Vector light_pos(x, y, -z);
+		for(int s=1;s<=CountSurfaces();s++){
+			Surface* surf=GetSurface(s);
+			int v;
+			for( v=0;v<surf->no_verts;v++ ){
+				Vector vert_pos(surf->vert_coords[v*3], surf->vert_coords[v*3+1], surf->vert_coords[v*3+2]);
+				Vector lv= light_pos-vert_pos;
+				Vector vert_norm(surf->vert_norm[v*3], surf->vert_norm[v*3+1], surf->vert_norm[v*3+2]);
+				float dp=vert_norm.normalized().dot( lv );
+				if( dp<=0 ) continue;
+				float d=lv.length();
+				float i=1/(d*att)*(dp/d);
 
-	for(int s=1;s<=CountSurfaces();s++){
+				surf->vert_col[v*4]+=r/255.0*i;
+				surf->vert_col[v*4+1]+=g/255.0*i;
+				surf->vert_col[v*4+2]+=b/255.0*i;
 
-		Surface* surf=GetSurface(s);
+			}
+			surf->reset_vbo|=128;
+		}
 
-		surf->SurfaceColor(r,g,b,a);
+	}else{
+		for(int s=1;s<=CountSurfaces();s++){
+			Surface* surf=GetSurface(s);
+			int v,vid;
+			for( v=0;v<surf->no_verts;v++ ){
 
-	}
+				vid=v*4;
+				surf->vert_col[vid]+=r/255.0;
+				surf->vert_col[vid+1]+=g/255.0;
+				surf->vert_col[vid+2]+=b/255.0;
 
-}
+			}
+			surf->reset_vbo|=128;
 
-
-void Mesh::MeshColor(float r,float g,float b){
-
-	for(int s=1;s<=CountSurfaces();s++){
-
-		Surface* surf=GetSurface(s);
-
-		surf->SurfaceColor(r,g,b);
-
-	}
-
-}
-
-void Mesh::MeshRed(float r){
-
-	for(int s=1;s<=CountSurfaces();s++){
-
-		Surface* surf=GetSurface(s);
-
-		surf->SurfaceRed(r);
-
-	}
-
-}
-
-void Mesh::MeshGreen(float g){
-
-	for(int s=1;s<=CountSurfaces();s++){
-
-		Surface* surf=GetSurface(s);
-
-		surf->SurfaceGreen(g);
+		}
 
 	}
-
-}
-
-void Mesh::MeshBlue(float b){
-
-	for(int s=1;s<=CountSurfaces();s++){
-
-		Surface* surf=GetSurface(s);
-
-		surf->SurfaceBlue(b);
-
-	}
-
-}
-
-void Mesh::MeshAlpha(float a){
-
-	for(int s=1;s<=CountSurfaces();s++){
-
-		Surface* surf=GetSurface(s);
-
-		surf->SurfaceAlpha(a);
-
-	}
-
 }
 
 void Mesh::FitMesh(float x,float y,float z,float width,float height,float depth,int uniform){
@@ -2435,7 +2405,7 @@ void Mesh::Render(){
 		if(surf.brush->no_texs>tex_count) tex_count=surf.brush->no_texs;
 		int tblendflags[8][2];
 		float tmatrix[8][9];
-		float tcoords[8];
+		int tcoords[8];
 
 		if (&Global::shaders[Light::no_lights][tex_count][Global::camera_in_use->fog_mode]!=Global::shader){
 			Global::shader=&Global::shaders[Light::no_lights][tex_count][Global::camera_in_use->fog_mode];
@@ -2854,6 +2824,10 @@ void Mesh::Render(){
 						tmatrix[ix][3]*= tex_u_scale; tmatrix[ix][4]*= tex_v_scale; 
 					}
 
+					if(tex_flags&64){
+						tex_coords=2;
+					}
+
 					if(tex_flags&128){
 	
 						glEnable(GL_TEXTURE_CUBE_MAP);
@@ -2890,7 +2864,7 @@ void Mesh::Render(){
 			if (tex_count>0){
 				glUniform2iv(Global::shader->texflag, tex_count , tblendflags[0]);
 				glUniformMatrix3fv(Global::shader->texmat, tex_count, 0, tmatrix[0]);
-				glUniform1fv(Global::shader->tex_coords_set, tex_count , tcoords);
+				glUniform1iv(Global::shader->tex_coords_set, tex_count , tcoords);
 
 				glBindBuffer(GL_ARRAY_BUFFER,surf.vbo_id[1]);
 				glVertexAttribPointer(Global::shader->tex_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);

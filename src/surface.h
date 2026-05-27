@@ -95,12 +95,6 @@ public:
 	float VertexW(int vid,int coord_set=0);
 	Brush* GetSurfaceBrush();
 	void PaintSurface(Brush* bru);
-	void SurfaceColor(float r,float g,float b,float a);
-	void SurfaceColor(float r,float g,float b);
-	void SurfaceRed(float r);
-	void SurfaceGreen(float g);
-	void SurfaceBlue(float b);
-	void SurfaceAlpha(float a);
 	void UpdateNormals();
 	int TriangleVertex(int tri_no,int corner);
 	float TriangleNX(int tri_no);

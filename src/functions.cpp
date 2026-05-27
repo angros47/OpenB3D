@@ -20,6 +20,7 @@
 #include "particle.h"
 #include "physics.h"
 #include "actions.h"
+#include "lightprobes.h"
 #include "postfx.h"
 
 #ifndef GL_FRAGMENT_SHADER
@@ -2174,6 +2175,42 @@ float* EntityMatrix(Entity* ent){
 	return ent->EntityMatrix();
 }
 
+
+ProbeVolume* CreateProbeVolume(float w, float h, float d, Entity* parent_ent=0){
+	return ProbeVolume::CreateProbeVolume(w, h, d, parent_ent);
+}
+
+void ClearProbes (ProbeVolume* vol){
+	vol->ClearProbes();
+}
+
+void SetLightProbe (ProbeVolume* vol, float x, float y, float z, int face, unsigned char r, unsigned char g, unsigned char b ){
+	vol->SetLightProbe (x, y, z, face, r, g, b );
+}
+
+void UpdateLightProbe (ProbeVolume* vol, float x, float y, float z){
+	vol->UpdateLightProbe (x, y, z);
+}
+
+void SetValidProbe (ProbeVolume* vol, float x, float y, float z){
+	vol->SetValidProbe (x, y, z);
+}
+
+void SetLight(ProbeVolume* vol, float x, float y, float z, float range, float r, float g, float b, bool obscurer=0){
+	vol->SetLight(x, y, z, range, r, g, b, obscurer);
+}
+
+void ApplyDiffusion(ProbeVolume* vol, int numPassages){
+	vol->ApplyDiffusion(numPassages);
+}
+
+void UpdateMeshColor (ProbeVolume* vol, Mesh* mesh, bool mode){
+	vol->UpdateMeshColor(mesh, mode);
+}
+
+
+
+
 /*void SetParameter1S(Shader* material, char* name, float v1){
 	material->SetParameter1S(name, v1);
 }
@@ -2288,6 +2325,10 @@ void SetParameter4D(Shader* material, char* name, double v1, double v2, double v
 
 
 
+void LightMesh(Mesh* mesh, float r, float g, float b, float range, float x, float y, float z){
+	mesh->LightMesh(r, g, b, range, x, y, z);
+
+}
 
 //' ***todo***
 

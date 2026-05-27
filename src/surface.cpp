@@ -405,92 +405,7 @@ void Surface::PaintSurface(Brush* bru){
 
 }
 
-void Surface::SurfaceColor(float r,float g,float b,float a){
 
-	int v,vid;
-	for( v=0;v<no_verts;v++ ){
-
-		vid=v*4;
-		vert_col[vid]=r/255.0;
-		vert_col[vid+1]=g/255.0;
-		vert_col[vid+2]=b/255.0;
-		vert_col[vid+3]=a;
-
-	}
-
-}
-
-void Surface::SurfaceColor(float r,float g,float b){
-
-	int v,vid;
-	for( v=0;v<no_verts;v++ ){
-
-		vid=v*4;
-		vert_col[vid]=r/255.0;
-		vert_col[vid+1]=g/255.0;
-		vert_col[vid+2]=b/255.0;
-		//vert_col[vid+3]=a;
-
-	}
-
-}
-
-void Surface::SurfaceRed(float r){
-
-	int v,vid;
-	for( v=0;v<no_verts;v++ ){
-
-		vid=v*4;
-		vert_col[vid]=r/255.0;
-		//vert_col[vid+1]=g/255.0;
-		//vert_col[vid+2]=b/255.0;
-		//vert_col[vid+3]=a;
-
-	}
-
-}
-
-void Surface::SurfaceGreen(float g){
-
-	int v,vid;
-	for( v=0;v<no_verts;v++ ){
-
-		vid=v*4;
-		//vert_col[vid]=r/255.0;
-		vert_col[vid+1]=g/255.0;
-		//vert_col[vid+2]=b/255.0;
-		//vert_col[vid+3]=a;
-
-	}
-
-}
-
-void Surface::SurfaceBlue(float b){
-
-	int v,vid;
-	for( v=0;v<no_verts;v++ ){
-
-		vid=v*4;
-		//vert_col[vid]=r/255.0;
-		//vert_col[vid+1]=g/255.0;
-		vert_col[vid+2]=b/255.0;
-		//vert_col[vid+3]=a;
-
-	}
-
-}
-
-void Surface::SurfaceAlpha(float a){
-
-	int v,vid;
-	for( v=0;v<no_verts;v++ ){
-
-		vid=v*4;
-		vert_col[vid+3]=a;
-
-	}
-
-}
 
 void Surface::UpdateNormals(){
 
@@ -677,6 +592,16 @@ void Surface::UpdateVBO(){
 	if(reset_vbo&16){
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,vbo_id[5]);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER,no_tris*3*sizeof(unsigned short),&tris[0],GL_STATIC_DRAW);
+	}
+
+	if(reset_vbo&64){	//update without changing size, for animations
+		glBindBuffer(GL_ARRAY_BUFFER,vbo_id[0]);
+		glBufferSubData(GL_ARRAY_BUFFER, 0,(no_verts*3*sizeof(float)),&vert_coords[0]);
+	}
+
+	if(reset_vbo&128){	//update without changing size, for lighting
+		glBindBuffer(GL_ARRAY_BUFFER,vbo_id[4]);
+		glBufferSubData(GL_ARRAY_BUFFER, 0,(no_verts*4*sizeof(float)),&vert_col[0]);
 	}
 
 	reset_vbo=false;

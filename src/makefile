@@ -1,7 +1,7 @@
 CCMPILER = g++
 CC=g++ -fPIC -Wall -O3 
 
-OBJECTS = model.o string_helper.o surface.o bone.o brush.o collision.o entity.o functions.o geom.o global.o light.o matrix.o pick.o pivot.o project.o sprite.o texture_filter.o tree.o animation.o animation_keys.o collision2.o maths_helper.o quaternion.o sprite_batch.o camera.o file.o mesh.o texture.o terrain.o stb_image.o 3ds.o collidetri.o shadow.o material.o stencil.o csg.o voxel.o octree.o geosphere.o md2.o isosurface.o particle.o physics.o actions.o postfx.o obj.o gltf.o
+OBJECTS = model.o string_helper.o surface.o bone.o brush.o collision.o entity.o functions.o geom.o global.o light.o matrix.o pick.o pivot.o project.o sprite.o texture_filter.o tree.o animation.o animation_keys.o collision2.o maths_helper.o quaternion.o sprite_batch.o camera.o file.o mesh.o texture.o terrain.o stb_image.o 3ds.o collidetri.o shadow.o material.o stencil.o csg.o voxel.o octree.o geosphere.o md2.o isosurface.o particle.o physics.o actions.o postfx.o obj.o gltf.o lightprobes.o
 
 main:$(OBJECTS) 
 ifeq ($(shell uname), Linux)
@@ -153,6 +153,9 @@ gltf.o  : gltf.cpp gltf.h cgltf.h
 
 collidetri.o	: collidetri.c
 	gcc -fPIC -c collidetri.c -o collidetri.o
+
+lightprobes.o  : lightprobes.cpp lightprobes.h 
+	$(CC) -c lightprobes.cpp -o lightprobes.o
 
 web:
 	make -f makefile.web

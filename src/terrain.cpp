@@ -306,7 +306,7 @@ void Terrain::UpdateTerrain(){
 	tex_count=brush.no_texs;
 	int tblendflags[8][2];
 	float tmatrix[8][9];
-	float tcoords[8];
+	int tcoords[8];
 
 	if (&Global::shaders[Light::no_lights][tex_count][Global::camera_in_use->fog_mode]!=Global::shader){
 		Global::shader=&Global::shaders[Light::no_lights][tex_count][Global::camera_in_use->fog_mode];
@@ -625,6 +625,12 @@ void Terrain::UpdateTerrain(){
 					tmatrix[ix][3]*= tex_u_scale; tmatrix[ix][4]*= tex_v_scale; 
 				}
 
+				if(tex_flags&64){
+					tcoords[ix]=2;
+				} else {
+					tcoords[ix]=0;
+				}
+
 				if(tex_flags&128){
 	
 					glEnable(GL_TEXTURE_CUBE_MAP);
@@ -636,7 +642,6 @@ void Terrain::UpdateTerrain(){
 
 				tblendflags[ix][0]=tex_blend;
 				tblendflags[ix][1]=tex_flags&(4|128);
-				tcoords[ix]=0;
 #endif
 
 
@@ -658,7 +663,7 @@ void Terrain::UpdateTerrain(){
 		if (tex_count>0){
 			glUniform2iv(Global::shader->texflag, tex_count , tblendflags[0]);
 			glUniformMatrix3fv(Global::shader->texmat, tex_count, 0, tmatrix[0]);
-			glUniform1fv(Global::shader->tex_coords_set, tex_count , tcoords);
+			glUniform1iv(Global::shader->tex_coords_set, tex_count , tcoords);
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER,vbo_id);

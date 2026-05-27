@@ -642,7 +642,7 @@ void Animation::VertexDeform(Mesh* ent){
 		Surface& surf=**surf_it;
 
 		// mesh shape will be changed, update reset_vbo flag (1=vertices move)
-		anim_surf.reset_vbo=anim_surf.reset_vbo|1;
+		anim_surf.reset_vbo=anim_surf.reset_vbo|64;
 
 		int vid=0;
 		int vid3=0;

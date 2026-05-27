@@ -309,7 +309,7 @@ void Geosphere::UpdateTerrain(){
 	tex_count=brush.no_texs;
 	int tblendflags[8][2];
 	float tmatrix[8][9];
-	float tcoords[8];
+	int tcoords[8];
 
 	if (&Global::shaders[Light::no_lights][tex_count][Global::camera_in_use->fog_mode]!=Global::shader){
 		Global::shader=&Global::shaders[Light::no_lights][tex_count][Global::camera_in_use->fog_mode];
@@ -629,6 +629,12 @@ void Geosphere::UpdateTerrain(){
 					tmatrix[ix][3]*= tex_u_scale; tmatrix[ix][4]*= tex_v_scale; 
 				}
 
+				if(tex_flags&64){
+					tcoords[ix]=2;
+				} else {
+					tcoords[ix]=0;
+				}
+
 				if(tex_flags&128){
 	
 					glEnable(GL_TEXTURE_CUBE_MAP);
@@ -640,7 +646,7 @@ void Geosphere::UpdateTerrain(){
 
 				tblendflags[ix][0]=tex_blend;
 				tblendflags[ix][1]=tex_flags&(4|128);
-				tcoords[ix]=0;
+				
 #endif
 
 
@@ -662,7 +668,7 @@ void Geosphere::UpdateTerrain(){
 		if (tex_count>0){
 			glUniform2iv(Global::shader->texflag, tex_count , tblendflags[0]);
 			glUniformMatrix3fv(Global::shader->texmat, tex_count, 0, tmatrix[0]);
-			glUniform1fv(Global::shader->tex_coords_set, tex_count , tcoords);
+			glUniform1iv(Global::shader->tex_coords_set, tex_count , tcoords);
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER,vbo_id);
@@ -1101,102 +1107,62 @@ void Geosphere::TOASTsub(int l, float v2[], float v1[], float v0[]){
 
 
 
-void Geosphere::ModifyGeosphere (int x, int y, float new_height){
-	/*int width=size*2;		//Most accurate approach: it wastes a lot of memory
-	if (EqToToast==0){	//First time: must create a look-up map to convert equirectangular coords to TOAST coords
-		EqToToast=new int[(int)(size+1)*width];
-		for (int y=0;y<size;y++){
-			for (int x=0;x<size;x++){
-				int x1=-NormalsMap[5*(x*(int)size+ y)+3]*2;
-				int y1=NormalsMap[5*(x*(int)size+ y)+4];
+void Geosphere::ModifyGeosphere (int eq_x, int eq_y, float new_height){
+    
+    float width_eq  = (float)(size * 2);
+    float height_eq = (float)size;
 
-				//geo->height[x*(int)geo->size+y]=((float)*(buffer+x1+y1*width))/255.0;
-				if (x1+y1*width<0) {
-					x1=0; y1=0;
-				}
-				EqToToast[x1+y1*width]=x*(int)size+y;
-			}
-		}
-	}
+    // 1. Convertiamo i pixel equirettangolari in angoli sferici (Longitudine e Latitudine)
+    float longitude = ((float)eq_x / (width_eq - 1.0f)) * 2.0f * (float)M_PI - (float)M_PI;
+    float latitude  = ((float)eq_y / (height_eq - 1.0f)) * (float)M_PI;
 
-	height[EqToToast[x+y*width]]=new_height;*/
+    // 2. Vettore 3D sulla sfera unitaria standard
+    float x_raw = sinf(latitude) * cosf(longitude);
+    float y3d   = cosf(latitude); // 1 = Polo Nord, -1 = Polo Sud
+    float z_raw = sinf(latitude) * sinf(longitude);
 
+    // 3. ROTAZIONE DI 45 GRADI ATTORNO ALL'ASSE POLARE Y
+    // cos(45°) = sin(45°) = 0.70710678f
+    const float INV_SQRT2 = 0.70710678f;
+    float x3d = (x_raw - z_raw) * INV_SQRT2;
+    float z3d = (x_raw + z_raw) * INV_SQRT2;
 
-	//Less accurate approach: some lines might be distorted, but for little changes on a map should be good enough
+    // 4. Proiezione sul piano dell'ottaedro (Normalizzazione Manhattan L1)
+    float den = fabsf(x3d) + fabsf(y3d) + fabsf(z3d);
+    if (den < 0.00001f) {
+        return; // Evita divisione per zero in punti singolari
+    }
+    
+    float ox = x3d / den;
+    float oz = z3d / den;
 
-	float r=sqrt((x % (int)hsize)*(x % (int)hsize)+(hsize-(x % (int)hsize))*(hsize-(x % (int)hsize)))/hsize;
+    // 5. Srotolamento dell'Ottaedro nel quadrato [-1.0, 1.0]
+    float u = 0.0f;
+    float v = 0.0f;
 
+    if (y3d >= 0.0f) {
+        // EMISFERO NORD: La losanga centrale
+        u = ox;
+        v = oz;
+    } else {
+        // EMISFERO SUD: I quattro angoli esterni si ripiegano simmetricamente
+        float signX = (ox >= 0.0f) ? 1.0f : -1.0f;
+        float signZ = (oz >= 0.0f) ? 1.0f : -1.0f;
+        
+        u = signX * (1.0f - fabsf(oz));
+        v = signZ * (1.0f - fabsf(ox));
+    }
 
-	if (x<hsize){
-		if (y<=hsize){
+    // 6. Rimappatura finale dall'intervallo [-1.0, 1.0] ai pixel del quadrato TOAST
+    // Nota: usiamo il casting a int con l'aggiunta di 0.5f per emulare il funzionamento di INT() di FreeBasic (arrotondamento al più vicino)
+    int tx = (int)(((u + 1.0f) / 2.0f) * (float)(size - 1) + 0.5f);
+    int ty = (int)(((v + 1.0f) / 2.0f) * (float)(size - 1) + 0.5f);
 
-			r=(r*(hsize-y)+1*y)/hsize;
-			y=y/r;
+    // Controllo finale di inclusione nella texture quadrata
+    if (tx >= 0 && tx < size && ty >= 0 && ty < size) {
+        height[tx+ty*(int)size]=new_height;
+    }
 
-			x=x* y/hsize;
-			y=y-x;
-		}else{
-			r=(r*(y-hsize)+1*(2*hsize-y))/hsize;
-			y=2*hsize-(2*hsize-y)/r;
-
-			x=y-(x*(y-2*hsize)/hsize)-hsize;
-			y=y-x;
-		}
-	}else if (x<hsize*2){
-		x=hsize*2-x;
-		if (y<=hsize){
-
-			r=(r*(hsize-y)+1*y)/hsize;
-			y=y/r;
-
-			x=x* y/hsize;
-			y=x-y;
-		}else{
-
-			r=(r*(y-hsize)+1*(2*hsize-y))/hsize;
-			y=2*hsize-(2*hsize-y)/r;
-
-
-			x=y-(x*(y-2*hsize)/hsize)-hsize;
-			y=x-y;
-		}
-	}else if (x<hsize*3){
-		x=x-hsize*2;
-		if (y<=hsize){
-
-			r=(r*(hsize-y)+1*y)/hsize;
-			y=y/r;
-
-			x=-x* y/hsize;
-			y=-y-x;
-		}else{
-			r=(r*(y-hsize)+1*(2*hsize-y))/hsize;
-			y=2*hsize-(2*hsize-y)/r;
-
-			x=(x*(y-2*hsize)/hsize)+hsize-y;
-			y=-y-x;
-		}
-	}else{
-		x=hsize*4-x;
-		if (y<=hsize) {
-
-			r=(r*(hsize-y)+1*y)/hsize;
-			y=y/r;
-
-			x=-x* y/hsize;
-			y=x+y;
-		}else{
-			r=(r*(y-hsize)+1*(2*hsize-y))/hsize;
-			y=2*hsize-(2*hsize-y)/r;
-
-			x=(x*(y-2*hsize)/hsize)+hsize-y;
-			y=x+y;
-		}
-	
-	}
-	x+=hsize;
-	y+=hsize;
-	height[x+y*(int)size]=new_height;
 }
 
 void Geosphere::EquirectangularToTOAST (){

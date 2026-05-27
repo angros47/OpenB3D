@@ -86,12 +86,7 @@ public:
 	void AddMesh(Mesh* mesh2);
 	void FlipMesh();
 	void PaintMesh(Brush* bru);
-	void MeshColor(float r,float g,float b,float a);
-	void MeshColor(float r,float g,float b);
-	void MeshRed(float r);
-	void MeshGreen(float g);
-	void MeshBlue(float b);
-	void MeshAlpha(float a);
+	void LightMesh(float r, float g, float b, float range, float x, float y, float z);
 	void FitMesh(float x,float y,float z,float width,float height,float depth,int uniform=false);
 	void ScaleMesh(float sx,float sy,float sz);
 	void RotateMesh(float pitch,float yaw,float roll);
