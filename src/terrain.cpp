@@ -53,7 +53,7 @@ static vector<float> vertices;
 
 
 MeshInfo* Terrain::mesh_info;
-list<Terrain*> Terrain::terrain_list;
+//list<Terrain*> Terrain::terrain_list;
 
 Terrain* Terrain::CopyEntity(Entity* parent_ent){
 
@@ -143,7 +143,7 @@ Terrain* Terrain::CopyEntity(Entity* parent_ent){
 	terr->c_col_tree=C_CreateColTree(mesh_info);
 	C_DeleteMeshInfo(mesh_info);
 
-	terrain_list.push_back(terr);
+	//terrain_list.push_back(terr);
 
 #ifdef GLES2
 	glGenBuffers(1,&terr->vbo_id);
@@ -177,7 +177,7 @@ Terrain* Terrain::CreateTerrain(int tsize, Entity* parent_ent){
 	C_DeleteMeshInfo(mesh_info);
 	terr->AddParent(parent_ent);
 	entity_list.push_back(terr);
-	terrain_list.push_back(terr);
+	//terrain_list.push_back(terr);
 	if (tsize!=0){
 		terr->size=tsize;
 		terr->vsize=30;
@@ -1189,7 +1189,7 @@ void Terrain::FreeEntity(){
 	delete[] height;
 	delete[] NormalsMap;		
 
-	terrain_list.remove(this);
+	//terrain_list.remove(this);
 	delete c_col_tree;
 
 	Entity::FreeEntity();

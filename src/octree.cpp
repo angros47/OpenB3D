@@ -215,7 +215,7 @@ OcTree* OcTree::CreateOcTree(float w, float h, float d, Entity* parent_ent){
 	oct->c_col_tree=C_CreateColTree(mesh_info);
 	C_DeleteMeshInfo(mesh_info);
 
-	terrain_list.push_back(oct);
+	//terrain_list.push_back(oct);
 
 	oct->child.width=w;//(mesh2->max_x-mesh2->min_x)/2;
 	oct->child.height=h;//(mesh2->max_x-mesh2->min_x)/2;
@@ -726,7 +726,7 @@ OcTree* OcTree::CopyEntity(Entity* parent_ent){
 	oct->c_col_tree=C_CreateColTree(mesh_info);
 	C_DeleteMeshInfo(mesh_info);
 
-	terrain_list.push_back(oct);
+	//terrain_list.push_back(oct);
 
 
 	return oct;

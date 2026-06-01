@@ -139,7 +139,7 @@ Geosphere* Geosphere::CopyEntity(Entity* parent_ent){
 	geo->c_col_tree=C_CreateColTree(mesh_info);
 	C_DeleteMeshInfo(mesh_info);
 
-	terrain_list.push_back(geo);
+	//terrain_list.push_back(geo);
 
 #ifdef GLES2
 	glGenBuffers(1,&geo->vbo_id);
@@ -176,7 +176,7 @@ Geosphere* Geosphere::CreateGeosphere(int tsize, Entity* parent_ent){
 	geo->c_col_tree=C_CreateColTree(mesh_info);
 	C_DeleteMeshInfo(mesh_info);
 	geo->AddParent(parent_ent);
-	terrain_list.push_back(geo);
+	//terrain_list.push_back(geo);
 	if (tsize!=0){
 		geo->size=tsize/2;
 		geo->hsize=tsize/4;
@@ -1509,7 +1509,7 @@ void Geosphere::FreeEntity(){
 	delete[] NormalsMap;		
 	//delete[] EqToToast;		
 
-	terrain_list.remove(this);
+	//terrain_list.remove(this);
 	delete c_col_tree;
 
 	Entity::FreeEntity();

@@ -58,6 +58,93 @@ probe->probes[0].face[5]={255,255,0};*/
 
 }
 
+ProbeVolume* ProbeVolume::CopyEntity(Entity* parent_ent){
+
+	// new terr
+	ProbeVolume* probe=new ProbeVolume;
+
+	// copy contents of child list before adding parent
+	list<Entity*>::iterator it;
+	for(it=child_list.begin();it!=child_list.end();it++){
+		Entity* ent=*it;
+		ent->CopyEntity(probe);
+	}
+
+	// lists
+
+	// add parent, add to list
+	probe->AddParent(parent_ent);
+	entity_list.push_back(probe);
+
+/*	// add to collision entity list
+	if(collision_type!=0){
+		CollisionPair::ent_lists[collision_type].push_back(terr);
+	}
+
+	// add to pick entity list
+	if(pick_mode){
+		Pick::ent_list.push_back(terr);
+	}*/
+
+	// update matrix
+	if(probe->parent){
+		probe->mat.Overwrite(probe->parent->mat);
+	}else{
+		probe->mat.LoadIdentity();
+	}
+
+	// copy entity info
+
+	probe->mat.Multiply(mat);
+
+	probe->px=px;
+	probe->py=py;
+	probe->pz=pz;
+	probe->sx=sx;
+	probe->sy=sy;
+	probe->sz=sz;
+
+	probe->name=name;
+	probe->class_name=class_name;
+	probe->order=order;
+	probe->hide=false;
+
+	probe->probes=new ProbeVolume::probe[(int)width*(int)height*(int)depth];
+	probe->width=width;
+	probe->height=height;
+	probe->depth=depth;
+
+	for (int i=0;i<width*height*depth;i++){
+		for (int i2=0;i2<6;i2++){
+			probe->probes[i].face[i2].r=probes[i].face[i2].r;
+			probe->probes[i].face[i2].g=probes[i].face[i2].g;
+			probe->probes[i].face[i2].b=probes[i].face[i2].b;
+		}		
+	}
+
+
+/*	terr->cull_radius=cull_radius;
+	terr->radius_x=radius_x;
+	terr->radius_y=radius_y;
+	terr->box_x=box_x;
+	terr->box_y=box_y;
+	terr->box_z=box_z;
+	terr->box_w=box_w;
+	terr->box_h=box_h;
+	terr->box_d=box_d;
+	terr->collision_type=collision_type;
+	terr->pick_mode=pick_mode;
+	terr->obscurer=obscurer;*/
+
+
+
+
+
+	return probe;
+
+}
+
+
 void ProbeVolume::FreeEntity(){
 
 	Entity::FreeEntity();

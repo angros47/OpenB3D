@@ -35,7 +35,7 @@ public:
 	void UpdateMeshColor (Mesh* mesh, bool mode);
 
 	static ProbeVolume* CreateProbeVolume(float w=1, float h=1, float d=1, Entity* parent_ent=0);
-	ProbeVolume* CopyEntity(Entity* parent_ent=NULL){return 0;};
+	ProbeVolume* CopyEntity(Entity* parent_ent=NULL);
 
 	void ClearProbes();
 
