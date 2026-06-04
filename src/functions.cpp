@@ -23,6 +23,8 @@
 #include "lightprobes.h"
 #include "postfx.h"
 
+#include "helper_2d.h"
+
 #ifndef GL_FRAGMENT_SHADER
 #define GL_FRAGMENT_SHADER 0x8B30
 #endif
@@ -2330,14 +2332,50 @@ void LightMesh(Mesh* mesh, float r, float g, float b, float range, float x, floa
 
 }
 
-//' ***todo***
 
-/*
-Function LightMesh(mesh:TMesh,red#,green#,blue#,range#=0,light_x#=0,light_y#=0,light_z#=0)
-End Function
-Function SetAnimKey(ent:TEntity,frame,pos_key=True,rot_key=True,scale_key=True)
-End Function
-*/
 
+
+
+BB_Buffer* bb_CreateBuffer(int w, int h) {
+    return BB_CreateBuffer(w, h);
+}
+
+void bb_Color(BB_Buffer* buf, unsigned char r, unsigned char g, unsigned char b) {
+    BB_Color(buf, r, g, b);
+}
+
+void bb_Rect(BB_Buffer* buf, int x, int y, int w, int h, int fill) {
+    BB_Rect(buf, x, y, w, h, fill);
+}
+
+void bb_Oval(BB_Buffer* buf, int xc, int yc, int rx, int ry, int fill) {
+    BB_Oval(buf, xc, yc, rx, ry, fill);
+}
+
+void bb_Line(BB_Buffer* buf, int x1, int y1, int x2, int y2) {
+    BB_Line(buf, x1, y1, x2, y2);
+}
+
+void bb_Text(BB_Buffer* buf, int x, int y, const char* text) {
+    BB_Text(buf, x, y, text);
+}
+
+void bb_DrawBufferEx(BB_Buffer* dest, BB_Buffer* src, int destX, int destY, float angle, float scaleX, float scaleY) {
+    BB_DrawBufferEx(dest, src, destX, destY, angle, scaleX, scaleY);
+}
+
+// La funzione richiesta per liberare la memoria in modo opaco
+void bb_Free(BB_Buffer* buf) {
+    BB_FreeBuffer(buf);
+}
+
+// Il ponte magico ed esplicito tra il tuo buffer e la texture di OpenB3D
+void bb_BufferToTex(Texture* tex, BB_Buffer* buf, int frame) {
+    if (tex != nullptr && buf != nullptr) {
+        // Chiamiamo la funzione originale interna di OpenB3D (o la logica OpenGL sottostante)
+        // passandogli direttamente l'array grezzo di pixel estratto dalla struct
+        BufferToTex(tex, buf->pixels, frame);
+    }
+}
 } /* extern "C" */
 

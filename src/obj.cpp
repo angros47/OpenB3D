@@ -236,15 +236,16 @@ vector<FaceData> ParseFaces( string data){
 		
 		int s = 0;
 		vector<FaceData> fdata;
-		fdata.resize(data1.size());
+		fdata.resize(data1.size(),{0});
 		
 		for (unsigned int i=0; i< data1.size();i++){
 			if (data1[i] == "") continue;
 			
 			vector<string> D2 = split(data1[i], '/');
+			D2.resize(3);
 			
 			
-			if (D2[0] != "") fdata[s].vi = ::atoi(D2[0].c_str()) - 1;
+			/*if (D2[0] != "")*/ fdata[s].vi = ::atoi(D2[0].c_str()) - 1;
 			if (D2[1] != "") fdata[s].ti = ::atoi(D2[1].c_str()) - 1;
 			if (D2[2] != "") fdata[s].ni = ::atoi(D2[2].c_str()) - 1;
 			
