@@ -149,6 +149,9 @@ gltf.o  : gltf.cpp gltf.h cgltf.h
 collidetri.o	: collidetri.c
 	$(CC) -c collidetri.c -o collidetri.o
 
+lightprobes.o  : lightprobes.cpp lightprobes.h 
+	$(CC) -c lightprobes.cpp -o lightprobes.o
+
 shaders.o	: shaders.cpp shaders.h
 	$(CC) -c shaders.cpp -o shaders.o
 

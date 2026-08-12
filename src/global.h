@@ -7,11 +7,6 @@
  *
  */
 
-#ifdef EMSCRIPTEN
-#ifndef GLES2
-#define GLES2
-#endif
-#endif
 
 #ifndef GLOBAL_H
 #define GLOBAL_H
