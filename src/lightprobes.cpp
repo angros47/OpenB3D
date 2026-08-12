@@ -1,3 +1,7 @@
+#ifdef GLES2
+#include <GLES2/gl2.h>
+#endif
+
 #include "global.h"
 #include "entity.h"
 #include "camera.h"

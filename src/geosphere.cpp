@@ -5,9 +5,8 @@
  *
  */
 
-#ifdef EMSCRIPTEN
+#ifdef GLES2
 #include <GLES2/gl2.h>
-#define GLES2
 #endif
 
 #ifdef linux
@@ -176,6 +175,7 @@ Geosphere* Geosphere::CreateGeosphere(int tsize, Entity* parent_ent){
 	geo->c_col_tree=C_CreateColTree(mesh_info);
 	C_DeleteMeshInfo(mesh_info);
 	geo->AddParent(parent_ent);
+	entity_list.push_back(geo);
 	//terrain_list.push_back(geo);
 	if (tsize!=0){
 		geo->size=tsize/2;

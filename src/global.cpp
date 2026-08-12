@@ -7,9 +7,8 @@
  *
  */
 
-#ifdef EMSCRIPTEN
+#ifdef GLES2
 #include <GLES2/gl2.h>
-#define GLES2
 #endif
 
 #ifdef linux

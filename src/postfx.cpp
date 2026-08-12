@@ -1,7 +1,6 @@
-#ifdef EMSCRIPTEN
+#ifdef GLES2
 #include <GLES3/gl3.h>
 #include <GLES3/gl2ext.h>
-#define GLES2
 #endif
 
 
