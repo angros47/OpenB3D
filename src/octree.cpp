@@ -211,7 +211,6 @@ OcTree* OcTree::CreateOcTree(float w, float h, float d, Entity* parent_ent){
 	oct->class_name="OcTree";
 
 	oct->AddParent(parent_ent);
-	entity_list.push_back(oct);
 	mesh_info=C_NewMeshInfo();
 	oct->c_col_tree=C_CreateColTree(mesh_info);
 	C_DeleteMeshInfo(mesh_info);
