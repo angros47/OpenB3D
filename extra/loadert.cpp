@@ -506,6 +506,11 @@ extern "C" {
         lastTile = level->GetTileID(x, y, z);
         return lastTile.c_str();
     }
+
+    void SetOB3MLTileID(OB3MLLevel* level, int x, int y, int z, char* id) {
+        level->SetTileID(x, y, z, id);
+    }
+
     Mesh* GetTileMesh(OB3MLLevel* level, const char* id) {
         return level->GetTileMesh(id);
     }
