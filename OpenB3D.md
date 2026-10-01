@@ -174,6 +174,8 @@ Mesh
 >
 > [CountBones](#CountBones)
 >
+> [LightMesh](#LightMesh)
+>
 > [CountSurfaces](#CountSurfaces)
 >
 > [SkinMesh](#SkinMesh)
@@ -388,7 +390,7 @@ Terrain
 >
 > [TerrainZ](#TerrainZ)
 
-fluid
+Fluid
 
 > [CreateFluid](#CreateFluid)
 >
@@ -599,6 +601,24 @@ Entity Collision
 > [GetEntityType](#GetEntityType)
 >
 > [ClearCollisions](#ClearCollisions)
+
+Light Probes
+
+> [CreateProbeVolume](#CreateProbeVolume)
+>
+> [ClearProbes](#ClearProbes)
+>
+> [SetLightProbe](#SetLightProbe)
+>
+> [UpdateLightProbe](#UpdateLightProbe)
+>
+> [SetValidProbe](#SetValidProbe)
+>
+> [SetLight](#SetLight)
+>
+> [ApplyDiffusion](#ApplyDiffusion)
+>
+> [UpdateMeshColor](#UpdateMeshColor)
 
 Actions
 
@@ -1048,6 +1068,32 @@ Appended actions don't necessarily have to apply to the same entity of
 the action that triggered them, they can apply to different entities as
 well.
 
+**void** <a id="ApplyDiffusion">**ApplyDiffusion(ProbeVolume\* vol, int numPassages)**
+
+Executes a light propagation algorithm across the entire ProbeVolume structure. It acts as a cellular-
+automata heat diffusion solver, causing light stored in "Valid" probes to naturally bleed, blend, and
+smooth out into adjacent empty or dark nodes.
+
+Parameters:
+
+*vol* (ProbeVolume): The target probe volume grid.num
+
+*numPassages* (int): The total number of iterative passes to run.
+
+Each pass expands the light propagation by exactly one node depth to all 6 orthogonal neighbors
+(Left, Right, Down, Up, Backward, Forward), calculating a clean directional average.
+
+Technical Notes:
+
+Optimization and Buffering: The algorithm utilizes a double-buffering architecture. Node states are
+read from the original grid and written to a separate temporary array during each iteration loop. This
+prevents chronological bias or single-direction bleeding artifacts during a single passage.
+Suggested Values: A setting of 2 or 3 passages is generally the sweet spot for a smooth, natural-
+looking global illumination falloff without over-blurring the light details.
+Memory Cleanup: Once all passages are executed, the internal tracking matrix for valid flags is
+completely flushed out and its RAM allocation is stripped (shrink_to_fit), ensuring zero memory
+overhead at runtime.
+
 **void** <a id="BackBufferToTex">**BackBufferToTex(Texture\* tex,int frame)**
 
 It converts the current screen back buffer (usually, the rendered image)
@@ -1307,6 +1353,16 @@ will be detected until the Collisions command is used again.
 
 The command will not clear entity collision information. For example,
 entity radius, type etc.
+
+**void** <a id="ClearProbes">**ClearProbes(ProbeVolume\* vol)**
+
+Resets and clears all lighting and structural data currently stored within the specified ProbeVolume.
+
+Technical Notes:
+
+Use this command when you need to completely flush the volume's internal states before
+recalculating a new lighting layout, reinitializing probe properties, or changing the scene
+configuration dynamically without destroying the volume object itself.
 
 **void** <a id="ClearSurface">**ClearSurface(Surface\* surf,bool clear_verts,bool
 clear_tris)**
@@ -1671,6 +1727,23 @@ The optional *parent* parameter allow you to specify a parent entity for
 the terrain so that when the parent is moved the child terrain will move
 with it. However, this relationship is one way; applying movement
 commands to the child will not affect the parent.
+
+**ProbeVolume\*** <a id="CreateProbeVolume">**CreateProbeVolume(float w, float h, float d, Entity\* parent)**
+
+Instantiates a 3D grid structure (a Probe Volume) that hosts and manages a collection of light
+probes. This volume is used to sample, store, and propagate global illumination throughout a
+specific region of your 3D world.
+
+Parameters:
+
+w, h, d (float): Grid dimensions specified as the total number of probes along the X (width), Y
+(height), and Z (depth) axes. By default, the spatial distance between each probe in the grid is equal
+to 1 engine unit.
+
+parent_ent (Entity, optional): A parent entity to attach the volume to. If provided, the entire probe
+grid will move, rotate, and scale relative to this parent.
+
+Return Value:Returns a pointer to the created ProbeVolume structure.
 
 **Mesh\*** <a id="CreateMesh">**CreateMesh(Entity\*
 parent)**
@@ -2891,6 +2964,12 @@ Sets the \'cone\' angle for a \'spot\' light.
 
 The default light cone angles setting is 0,90.
 
+**void** <a id="LightMesh">**LightMesh(Mesh\* mesh, float r, float g, float b, float range, float x, float y, float z)**
+
+Applies a fake lighting to *mesh*, using the vertex colors. To make the effect visible, EntityFXxflag 2 must be set, otherwise vertex color will be ignored, and only brush color will be used. Parameters *r*, *g*, *b* set the light color, positive and negative values can be used. By default, vertex color is se to the maximum, so before applying fake lights to a mesh it's recommended to use LightMesh *mesh*, -255, -255, -255
+
+If *range* is set to zero, further parameters are ignored and the fake light will affect all the vertices in the same way. Otherwise, lighting will be applied as if it came from a light at position *x*, *y*, *z* relative to mesh coordinates.
+
 **void** <a id="LightRange">**LightRange(Light\*
 light,float range)**
 
@@ -3991,6 +4070,62 @@ material, char\* name, int v1, int v2, int v3, int v4)**
 Sets an integer vector with 4 elements to be used inside a shader, where
 it will be accessible as *name*.
 
+**void** <a id="SetLight">**SetLight(ProbeVolume\* vol, float x, float y, float z, float range, float r, float g, float b, bool obscurer=0)**
+
+Injects a light source directly into the ProbeVolume, calculating how its energy propagates across
+the surrounding grid nodes.
+
+Parameters:
+
+*vol* (ProbeVolume): The target probe volume.
+
+*x*, *y*, *z* (float): The origin position of the light source.
+
+*range* (float): The distance radius of the light influence.
+*r*, *g*, *b* (float): The color components of the light. Negative values can be used if you need to
+subtract light or "turn off" an area that was previously illuminated.
+
+*obscurer* (bool, optional): Controls occlusion and shadow generation:0 (False - Default): Light
+propagates uniformly through space, diminishing solely based on distance. No collision or
+shadowing is computed.1 (True): Enables static shadow casting. Any geometric object configured
+with [EntityPickMode](#EntityPickMode) will physically block the light rays. This bakes static volumetric shadows into
+the probe grid. Moving objects passing through these precalculated zones will correctly darken as
+they enter the shadow's volume.
+
+**void** <a id="SetLightProbe">**SetLightProbe(ProbeVolume\* vol, float x, float y, float z, int face, unsigned char r, unsigned char g, unsigned char b)**
+
+Manually assigns a specific color value to one of the six directional faces of a single probe within
+the grid. This allows for precise, low-level customization of the ambient lighting data stored inside
+the volume.
+
+Parameters:
+
+*vol* (ProbeVolume): The target probe volume.
+
+*x*, *y*, *z* (float): The spatial coordinates identifying the specific probe within the grid.
+
+*face* (int): The specific directional side of the probe being configured. The index maps to the
+following axes:
+
+0: Negative X (Left)\
+1: Negative Y (Down)\
+2: Negative Z (Backward)\
+3: Positive X (Right)\
+4: Positive Y (Up)\
+5: Positive Z (Forward)
+
+*r*, *g*, *b* (unsigned char): The color intensity values (0-255) assigned to that face.
+
+**void** <a id="SetValidProbe">**SetValidProbe(ProbeVolume\* vol, float x, float y, float z)**
+
+Explicitly flags a specific probe at the given (x, y, z) grid coordinates as "Valid".
+
+Usage and Mechanics:This flag signals to the execution pipeline that the designated probe already
+contains definitive, pre-calculated lighting data (whether assigned manually via [SetLightProbe](#SetLightProbe),
+baked via [UpdateLightProbe](#UpdateLightProbe), or injected via [SetLight](#SetLight)) and must not be overwritten or modified by
+the diffusion system. Validated probes serve as the source reference anchors from which light will
+bleed and propagate into uninitialized neighboring nodes when running the [ApplyDiffusion](#ApplyDiffusion) routine.
+
 **void** <a id="ShadeEntity">**ShadeEntity(Entity\*
 ent, Shader\* material)**
 
@@ -4561,6 +4696,50 @@ is used.
 Recalculates the second set of texture coordinates, replacing them with
 3d texture coordinates. These coordinates will work only with 3d
 textures (loaded with [LoadMaterial](#LoadMaterial))
+
+**void** <a id="UpdateLightProbe">**UpdateLightProbe(ProbeVolume\* vol, float x, float y, float z)**
+
+Automates the light sampling process for a single specific probe node within the volume grid using
+the rendering engine.
+
+How it works:
+
+When invoked, the engine positions a virtual camera at the specified (*x*, *y*, *z*) grid coordinate and
+renders the surrounding 3D environment in all 6 cardinal directions (creating a virtual cube map). It
+then computes the average color values detected from the scene geometry—including emissive
+textures, ambient lighting, and skyboxes—and automatically bakes those values into the 6
+directional faces of that probe.
+
+Performance Note:
+
+Because this operation triggers multiple off-screen renders, it is computationally expensive. It
+should be used selectively for critical nodes or during loading screens/baking phases rather than
+called continuously every frame.
+
+**void** <a id="UpdateMeshColor">**UpdateMeshColor(ProbeVolume\* vol, Mesh\* mesh, bool mode)**
+
+Calculates the lighting data stored in the ProbeVolume and applies it directly to the target *mesh* by
+modifying its vertex colors. This bridges the gap between the precalculated volume illumination and
+the runtime rendering of your objects.
+
+Automation Note: You do not need to call this manually for every object. Any mesh set as a child of the
+ProbeVolume will have its lighting automatically computed and updated by the engine, streamlining
+the rendering pipeline.
+
+Parameters:
+
+*vol* (ProbeVolume): The light probe grid supplying the illumination data.
+
+*mesh* (Mesh): The target 3D object to be illuminated.
+
+*mode* (int / bool): Determines the precision and performance footprint of the lighting calculation:\
+0 (False) - Per-Mesh Mode: The engine calculates a single, uniform lighting value for the entire
+object. This is highly optimized and recommended for small meshes, as the computation is
+extremely fast.\
+1 (True) - Per-Vertex Mode: The engine evaluates the lighting context independently for every
+single vertex of the mesh. This is necessary for large meshes that span across multiple probes,
+ensuring that vertices on one side of the object receive different lighting than those on the other
+side.
 
 **void** <a id="UpdateWorld">**UpdateWorld(float
 anim_speed)**
