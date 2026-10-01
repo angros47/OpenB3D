@@ -1,4 +1,4 @@
-OpenB3d 1.42 Guide
+OpenB3d 1.50 Guide
 
 (<https://sourceforge.net/projects/minib3d/files/>)
 
