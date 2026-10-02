@@ -1,3 +1,17 @@
+v1.5
+Added
+-LightMesh
+-global illumination based on light probes
+-2d helper functions
+
+Fixed
+-for animation updates, use glBufferSubData instead of glBufferData
+-Fixed a bug in .obj loader
+-spheremapping now works in GLES mode too
+-potential memory leak (some entities weren't properly listed for deletion in ClearWorld)
+-made ModifyGeosphere faster and more accurate
+
+
 v1.42
 Added
 -Support for .gltf and .glb format
